@@ -10,8 +10,8 @@ var contract = require("truffle-contract");
 var controllerjson=require('../..//json/BettingController.json');
 var samplejson=require('../../json/ETHorse.json');
 const provider = `wss://ropsten.infura.io/_ws`
-// let web3 = new Web3(new Web3.providers.WebsocketProvider("wss://ropsten.infura.io/ws"))
-let web3 = new Web3(new Web3.providers.WebsocketProvider("ws://192.168.0.112:8546"))
+let web3 = new Web3(new Web3.providers.WebsocketProvider("wss://ropsten.infura.io/_ws"))
+// let web3 = new Web3(new Web3.providers.WebsocketProvider("ws://192.168.0.112:8546"))
 // var Contract = require('./Contract/Contract');
 var contractAddress="0xacadf60516a37402bedf03e37cd3fccef9078524";
 
