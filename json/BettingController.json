@@ -18,12 +18,13 @@
         "type": "function"
     },
     {
+        "payable": true,
+        "stateMutability": "payable",
+        "type": "fallback"
+    },
+    {
         "constant": false,
         "inputs": [
-            {
-                "name": "delay",
-                "type": "uint256"
-            },
             {
                 "name": "oraclizeGasLimit",
                 "type": "uint256"
@@ -34,6 +35,57 @@
         "payable": true,
         "stateMutability": "payable",
         "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "name": "_value",
+                "type": "uint256"
+            }
+        ],
+        "name": "AddFund",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "name": "_race",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "name": "_value",
+                "type": "uint256"
+            }
+        ],
+        "name": "HouseFeeDeposit",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "name": "_address",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "name": "_owner",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "name": "_time",
+                "type": "uint256"
+            }
+        ],
+        "name": "RaceDeployed",
+        "type": "event"
     },
     {
         "constant": false,
@@ -59,34 +111,11 @@
     },
     {
         "constant": false,
-        "inputs": [
-            {
-                "name": "_status",
-                "type": "bool"
-            }
-        ],
-        "name": "raceSpawnSwitch",
-        "outputs": [],
-        "payable": false,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": false,
         "inputs": [],
         "name": "spawnRace",
         "outputs": [],
         "payable": false,
         "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": false,
-        "inputs": [],
-        "name": "addFunds",
-        "outputs": [],
-        "payable": true,
-        "stateMutability": "payable",
         "type": "function"
     },
     {
@@ -96,48 +125,13 @@
         "type": "constructor"
     },
     {
+        "constant": false,
+        "inputs": [],
+        "name": "addFunds",
+        "outputs": [],
         "payable": true,
         "stateMutability": "payable",
-        "type": "fallback"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": true,
-                "name": "_address",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "name": "_owner",
-                "type": "address"
-            },
-            {
-                "indexed": true,
-                "name": "_time",
-                "type": "uint256"
-            }
-        ],
-        "name": "RaceDeployed",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "name": "_race",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "name": "_value",
-                "type": "uint256"
-            }
-        ],
-        "name": "HouseFeeDeposit",
-        "type": "event"
+        "type": "function"
     },
     {
         "anonymous": false,
@@ -152,15 +146,17 @@
         "type": "event"
     },
     {
-        "anonymous": false,
+        "constant": false,
         "inputs": [
             {
-                "indexed": false,
-                "name": "_value",
-                "type": "uint256"
+                "name": "_status",
+                "type": "bool"
             }
         ],
-        "name": "AddFund",
-        "type": "event"
+        "name": "raceSpawnSwitch",
+        "outputs": [],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "function"
     }
 ]

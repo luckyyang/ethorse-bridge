@@ -10,9 +10,9 @@ var samplejson=require('../json/ETHorse.json');
 const provider = `wss://ropsten.infura.io/ws`
 let web3 = new Web3(new Web3.providers.WebsocketProvider("wss://ropsten.infura.io/ws"))
 
-var contractAddress="0x30D65B119105e5fad531288a05e8f6b00C14F96d";
+var contractAddress="0xacadf60516a37402bedf03e37cd3fccef9078524";
 
-let contractInstance = new web3.eth.Contract(samplejson.abi, contractAddress);
+let contractInstance = new web3.eth.Contract(controllerjson, contractAddress);
 
 
   contractInstance.getPastEvents('allEvents',
@@ -25,49 +25,39 @@ let contractInstance = new web3.eth.Contract(samplejson.abi, contractAddress);
     })
   })
 
-var tempjson={ address: '0x30D65B119105e5fad531288a05e8f6b00C14F96d',
-  topics: [ '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c' ],
-  data: '0x000000000000000000000000fda12b99cb2d6cbde6c4054988159308b483ed58000000000000000000000000000000000000000000000000016345785d8a0000',
-  blockNumber: 2534603,
-  transactionHash: '0x209bfb7ee03fed311ed277ecc5937188a7d69c08035ed880f4e962628417cb36',
-  transactionIndex: 8,
-  blockHash: '0x75c4b3daea7b7c2a5ba0ddadbfc6e6a42ead5244fda22ed4193745a4b95f89ef',
-  logIndex: 2,
-  removed: false,
-  id: 'log_96312716' }
-
-var toAscii = function(hex) {
-    // console.log('ASCII')
-    var str = '',
-        i = 0,
-        l = hex.length;
-    if (hex.substring(0, 2) === '0x') {
-        i = 2;
-    }
-    for (; i < l; i+=2) {
-        var code = parseInt(hex.substr(i, 2), 16);
-        if (code === 0) continue; // this is added
-        str += String.fromCharCode(code);
-    }
-    return str;
-};
-
-console.log(toAscii(tempjson.data));
 
 // contractInstance.methods.race_end().call({from:contractAddress},function(error,response){
 //         console.log('end');
 //         console.log('response: ',response);
 //         })
 
-// var options={address:contractAddress};
+var options={address:contractAddress};
 
-// var sub = web3.eth.subscribe('logs',options,function(logs){
-//     // console.log('Log subscribe',logs);
-// });
-// sub.on('data',function(result){
-// console.log(result)
-// console.log(web3.utils.toAscii(result.data));
-// });
+var sub = web3.eth.subscribe('logs',options,function(logs){
+});
+sub.on('data',function(result){
+    console.log(result)
+let contractdetails=(web3.eth.abi.decodeLog([
+            {
+                "indexed": false,
+                "name": "_address",
+                "type": "address"
+            },
+            
+            {
+                "indexed": false,
+                "name": "_owner",
+                "type": "address"
+            },
+            
+            
+            {
+                "indexed": false,
+                "name": "_time",
+                "type": "uint256"
+            }
+        ],result.data,result.topics));
+});
 
 
 
