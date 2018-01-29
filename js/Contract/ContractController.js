@@ -10,10 +10,10 @@ var contract = require("truffle-contract");
 var controllerjson=require('../..//json/BettingController.json');
 var samplejson=require('../../json/ETHorse.json');
 const provider = `wss://ropsten.infura.io/ws`
-// let web3 = new Web3(new Web3.providers.WebsocketProvider("wss://ropsten.infura.io/ws"))
-let web3 = new Web3(new Web3.providers.WebsocketProvider("ws://192.168.0.112:8546"))
+let web3 = new Web3(new Web3.providers.WebsocketProvider("wss://ropsten.infura.io/ws"))
+// let web3 = new Web3(new Web3.providers.WebsocketProvider("ws://192.168.0.112:8546"))
 // var Contract = require('./Contract/Contract');
-var contractAddress="0xacadf60516a37402bedf03e37cd3fccef9078524";
+var contractAddress="0x798e3b72fc4f53d1f2d5e5856596f04ba6e07dc1";
 
 let contractInstance = new web3.eth.Contract(controllerjson, contractAddress);
 var options={address:contractAddress,topics:['0xbb72155379e773b51e75e9105a92b43c2b89e37a51b13c2780ae34929b89457d']};
@@ -77,8 +77,9 @@ router.post('/', function (req, res) {
 });
 
 router.get('/', function (req, res) {
-
-    Contract.find({}, function (err, contracts) {
+    console.log('Request')
+    // console.log(req.headers)
+    Contract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).sort('-date').exec(function (err, contracts) {
         if (err) return res.status(500).send("There was a problem finding the contracts.");
         res.status(200).send(contracts);
     });
