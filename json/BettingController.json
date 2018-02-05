@@ -1,162 +1,186 @@
 [
-    {
-        "constant": false,
-        "inputs": [
-            {
-                "name": "myid",
-                "type": "bytes32"
-            },
-            {
-                "name": "result",
-                "type": "string"
-            }
-        ],
-        "name": "__callback",
-        "outputs": [],
-        "payable": false,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "payable": true,
-        "stateMutability": "payable",
-        "type": "fallback"
-    },
-    {
-        "constant": false,
-        "inputs": [
-            {
-                "name": "oraclizeGasLimit",
-                "type": "uint256"
-            }
-        ],
-        "name": "update",
-        "outputs": [],
-        "payable": true,
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "name": "_value",
-                "type": "uint256"
-            }
-        ],
-        "name": "AddFund",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "name": "_race",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "name": "_value",
-                "type": "uint256"
-            }
-        ],
-        "name": "HouseFeeDeposit",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "name": "_address",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "name": "_owner",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "name": "_time",
-                "type": "uint256"
-            }
-        ],
-        "name": "RaceDeployed",
-        "type": "event"
-    },
-    {
-        "constant": false,
-        "inputs": [
-            {
-                "name": "myid",
-                "type": "bytes32"
-            },
-            {
-                "name": "result",
-                "type": "string"
-            },
-            {
-                "name": "proof",
-                "type": "bytes"
-            }
-        ],
-        "name": "__callback",
-        "outputs": [],
-        "payable": false,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "constant": false,
-        "inputs": [],
-        "name": "spawnRace",
-        "outputs": [],
-        "payable": false,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "payable": true,
-        "stateMutability": "payable",
-        "type": "constructor"
-    },
-    {
-        "constant": false,
-        "inputs": [],
-        "name": "addFunds",
-        "outputs": [],
-        "payable": true,
-        "stateMutability": "payable",
-        "type": "function"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
-                "indexed": false,
-                "name": "description",
-                "type": "string"
-            }
-        ],
-        "name": "newOraclizeQuery",
-        "type": "event"
-    },
-    {
-        "constant": false,
-        "inputs": [
-            {
-                "name": "_status",
-                "type": "bool"
-            }
-        ],
-        "name": "raceSpawnSwitch",
-        "outputs": [],
-        "payable": false,
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_bettingDuration",
+				"type": "uint256"
+			},
+			{
+				"name": "_raceDuration",
+				"type": "uint256"
+			}
+		],
+		"name": "spawnRace",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "myid",
+				"type": "bytes32"
+			},
+			{
+				"name": "result",
+				"type": "string"
+			}
+		],
+		"name": "__callback",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "oracleQueryId",
+				"type": "bytes32"
+			},
+			{
+				"name": "result",
+				"type": "string"
+			},
+			{
+				"name": "proof",
+				"type": "bytes"
+			}
+		],
+		"name": "__callback",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_status",
+				"type": "bool"
+			}
+		],
+		"name": "raceSpawnSwitch",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "delay",
+				"type": "uint256"
+			}
+		],
+		"name": "update",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "addFunds",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "constructor"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_address",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_bettingDuration",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_raceDuration",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_time",
+				"type": "uint256"
+			}
+		],
+		"name": "RaceDeployed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_race",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "HouseFeeDeposit",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "newOraclizeQuery",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "AddFund",
+		"type": "event"
+	}
 ]
