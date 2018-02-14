@@ -4,14 +4,13 @@ var bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
-var Contract = require('./Contract');
+var Contract = require(__dirname+'/Contract');
 var Web3 = require('web3');
-var controllerjson=require('../..//json/BettingController.json');
-var samplejson=require('../../json/ETHorse.json');
+var controllerjson=require(__dirname+'/../../json/BettingController.json');
+var samplejson=require(__dirname+'/../../json/ETHorse.json');
 var providerLink="wss://kovan.infura.io/ws";
 const ProviderEngine = require('../../index.js')
 const ZeroClientProvider = require('../../zero.js')
-
 
 
 var storeContract= function(contractdetails)
@@ -83,10 +82,10 @@ router.post('/', function (req, res) {
 
 router.get('/', function (req, res) {
     Contract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).sort('-date').exec(function (err, contracts) {
-        if(contracts.length==0 || err)
-            return res.status(500).send("There was a problem finding the contracts.");
-        else{
         var returnResult=[]
+        if(err)
+            return res.status(500).send("There was a problem finding the contracts.");
+
         contracts.forEach(contractRecord=>{
             var tempjson=JSON.parse(JSON.stringify(contractRecord))
             if(parseInt(tempjson.end_time)>=req.headers.currenttime)
@@ -101,9 +100,7 @@ router.get('/', function (req, res) {
                 returnResult.push(tempjson);
 
         })
-
         res.status(200).send(returnResult);
-    }
     });
 
 });
