@@ -27,24 +27,26 @@ var storeContract= function(contractdetails)
 
 const engine = ZeroClientProvider({
   getAccounts: function(){},
-  rpcUrl: 'https://kovan.infura.io/',
+  rpcUrl: 'https://mainnet.infura.io/',
 })
 
 
 var web3 = new Web3(engine);
 
 
-var contractAddress="0x7058f5d8ad7b6403737d06f4c4b49a49e6cc86a8";
+var contractAddress="0x908B3c90f8ba8E7A5a4815707cD6717181B23CB9";
 
 var MyContract = web3.eth.contract(controllerjson);
 var contractInstance = MyContract.at(contractAddress);
 
 var options={address:contractAddress};
 
+function pastcontracts(){
 web3.eth.getBlockNumber(function(error, result){
     var myEvent = contractInstance.RaceDeployed({},{fromBlock:result-17280 , toBlock: 'latest'});
 
     myEvent.watch(function(error, contractresult){
+        console.log(contractresult)
        Contract.findOneAndUpdate({'contractid':contractresult.args._address}, {}, {}, function(error, result) {
                 if (!error) {
                     // If the document doesn't exist
@@ -58,7 +60,10 @@ web3.eth.getBlockNumber(function(error, result){
 
 
  })
+}
 
+pastcontracts();
+// setInterval(pastcontracts,1800000);
 
 
 
@@ -78,6 +83,9 @@ router.post('/', function (req, res) {
 
 router.get('/', function (req, res) {
     Contract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).sort('-date').exec(function (err, contracts) {
+        if(contracts.length==0 || err)
+            return res.status(500).send("There was a problem finding the contracts.");
+        else{
         var returnResult=[]
         contracts.forEach(contractRecord=>{
             var tempjson=JSON.parse(JSON.stringify(contractRecord))
@@ -93,21 +101,37 @@ router.get('/', function (req, res) {
                 returnResult.push(tempjson);
 
         })
-        if (err) return res.status(500).send("There was a problem finding the contracts.");
+
         res.status(200).send(returnResult);
+    }
     });
 
 });
-router.get('/getNextRace', function (req, res) {
-    Contract.find({}).sort('-date').limit(1).exec(function(err,contract){
-        nextrace={'date':parseInt(contract[0].date)+57600}
-        if (err) return res.status(500).send("There was a problem finding the latest contract");
+router.get('/getNextDayRace', function (req, res) {
+    Contract.find({race_duration:'86400'}).sort('-date').limit(1).exec(function(err,contract){
+        race1_interval=43200;
+        race2_interval=86400;
+        if(err)
+            return res.status(500).send("There was a problem finding the latest contract");
+        if(contract.length==0)
+            return res.status(500).send({});
+        nextrace={'race1':parseInt(contract[0].date)+race1_interval,'race2':parseInt(contract[0].date)+race2_interval}
+        res.status(200).send(nextrace);
+
+    })
+    });
+router.get('/getNextHourRace', function (req, res) {
+    Contract.find({race_duration:'3600'}).sort('-date').limit(1).exec(function(err,contract){
+        race1_interval=28800;
+        race2_interval=57600;
+        if(err)
+        return res.status(500).send("There was a problem finding the latest contract");
+        if(contract.length==0)
+            return res.status(500).send({});
+        nextrace={'race1':parseInt(contract[0].date)+race1_interval,'race2':parseInt(contract[0].date)+race2_interval}
         res.status(200).send(nextrace);
     })
     });
 
-router.get('/contractsInvolved',function(req,res){
-    // contractInstance.
-})
 
 module.exports = router;
