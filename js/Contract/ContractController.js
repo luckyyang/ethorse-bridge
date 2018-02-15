@@ -81,6 +81,7 @@ router.post('/', function (req, res) {
 });
 
 router.get('/', function (req, res) {
+    console.log('request')
     Contract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).sort('-date').exec(function (err, contracts) {
         var returnResult=[]
         if(err)
