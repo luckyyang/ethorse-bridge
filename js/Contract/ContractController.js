@@ -81,7 +81,7 @@ router.post('/', function (req, res) {
 });
 
 router.get('/', function (req, res) {
-    console.log('request')
+    // console.log('request')
     Contract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).sort('-date').exec(function (err, contracts) {
         var returnResult=[]
         if(err)
@@ -106,14 +106,14 @@ router.get('/', function (req, res) {
 
 });
 router.get('/getNextDayRace', function (req, res) {
-    Contract.find({race_duration:'86400'}).sort('-date').limit(1).exec(function(err,contract){
+    Contract.find({race_duration:'60'}).sort('-date').limit(1).exec(function(err,contract){
         race1_interval=43200;
         race2_interval=86400;
         if(err)
             return res.status(500).send("There was a problem finding the latest contract");
         if(contract.length==0)
             return res.status(500).send({});
-        nextrace={'race1':parseInt(contract[0].date)+race1_interval,'race2':parseInt(contract[0].date)+race2_interval}
+        nextrace=[{'raceDate':parseInt(contract[0].date)+race1_interval,'status':'Upcoming'},{'raceDate':parseInt(contract[0].date)+race2_interval,'status':'Upcoming'}]
         res.status(200).send(nextrace);
 
     })
