@@ -8,7 +8,7 @@ var Contract = require(__dirname+'/Contract');
 var Web3 = require('web3');
 var controllerjson=require(__dirname+'/../../json/BettingController.json');
 var samplejson=require(__dirname+'/../../json/ETHorse.json');
-var providerLink="wss://kovan.infura.io/ws";
+var providerLink="https://kovan.infura.io/";
 const ProviderEngine = require('../../index.js')
 const ZeroClientProvider = require('../../zero.js')
 
@@ -26,14 +26,14 @@ var storeContract= function(contractdetails)
 
 const engine = ZeroClientProvider({
   getAccounts: function(){},
-  rpcUrl: 'https://kovan.infura.io/',
+  rpcUrl: providerLink,
 })
 
 
 var web3 = new Web3(engine);
 
 
-var contractAddress="0x99520D43eBE84Ae2B95397A1a11Bc07B82417aF8";
+var contractAddress="0xFb09FAb6AFd837Ce7D5FEF9e47028E30836b2CA3";
 
 var MyContract = web3.eth.contract(controllerjson);
 var contractInstance = MyContract.at(contractAddress);
@@ -65,7 +65,6 @@ pastcontracts();
 
 
 router.get('/', function (req, res) {
-    // console.log('request')
     Contract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).sort('-date').exec(function (err, contracts) {
         var returnResult=[]
         if(err)
@@ -100,29 +99,15 @@ router.get('/getNextRace', function (req, res) {
     Contract.find({race_duration:req.headers.duration}).sort('-date').limit(1).exec(function(err,contract){
         race1_interval=43200;
         race2_interval=86400;
-        let currenttime= new Date().getTime();
         if(err)
             return res.status(500).send("There was a problem finding the latest contract");
-        if(contract.length==0){
+        if(contract.length==0 || ((parseInt(contract[0].date)+race1_interval)-parseInt(req.headers.currenttime))<0){
             return res.status(204).send([]);}
         else{
-        nextrace=[{'raceDate':(parseInt(contract[0].date)+race1_interval),'time_remaining':(parseInt(contract[0].date)+race1_interval)*1000-currenttime,'status':'Upcoming'}]
+        nextrace=[{'raceDate':(parseInt(contract[0].date)+race1_interval),'time_remaining':((parseInt(contract[0].date)+race1_interval)-parseInt(req.headers.currenttime))*1000,'status':'Upcoming'}]
         res.status(200).send(nextrace);
         }
 
-    })
-    });
-router.get('/getNextHourRace', function (req, res) {
-    Contract.find({race_duration:req.headers.duration}).sort('-date').limit(1).exec(function(err,contract){
-        race1_interval=28800;
-        race2_interval=57600;
-        let currenttime= new Date().getTime();
-        if(err)
-            return res.status(500).send("There was a problem finding the latest contract");
-        if(contract.length==0)
-            return res.status(204).send({});
-        nextrace=[{'raceDate':(parseInt(contract[0].date)+race1_interval),'time_remaining':(parseInt(contract[0].date)+race1_interval)*1000-currenttime,'status':'Upcoming'}]
-        res.status(200).send(nextrace);
     })
     });
 
