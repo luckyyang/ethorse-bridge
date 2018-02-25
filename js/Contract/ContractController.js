@@ -7,8 +7,8 @@ router.use(bodyParser.json());
 var Contract = require(__dirname+'/Contract');
 var Web3 = require('web3');
 var controllerjson=require(__dirname+'/../../json/BettingController.json');
-var samplejson=require(__dirname+'/../../json/ETHorse.json');
-var providerLink="https://kovan.infura.io/";
+var ethorsejson=require(__dirname+'/../../json/ETHorse.json');
+var providerLink=ethorsejson.providerLink;
 const ProviderEngine = require('../../index.js')
 const ZeroClientProvider = require('../../zero.js')
 
@@ -33,7 +33,7 @@ const engine = ZeroClientProvider({
 var web3 = new Web3(engine);
 
 
-var contractAddress="0xFb09FAb6AFd837Ce7D5FEF9e47028E30836b2CA3";
+var contractAddress=ethorsejson.address;
 
 var MyContract = web3.eth.contract(controllerjson);
 var contractInstance = MyContract.at(contractAddress);
