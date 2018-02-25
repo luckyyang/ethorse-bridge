@@ -4,7 +4,9 @@ var bodyParser = require('body-parser');
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
-var Contract = require(__dirname+'/Contract');
+// var Contract = require(__dirname+'/Contract');
+var KovanContract = require(__dirname+'/KovanContract');
+var MainContract = require(__dirname+'/MainContract');
 var Web3 = require('web3');
 var controllerjson=require(__dirname+'/../../json/BettingController.json');
 var ethorsejson=require(__dirname+'/../../json/ETHorse.json');
@@ -13,9 +15,9 @@ const ProviderEngine = require('../../index.js')
 const ZeroClientProvider = require('../../zero.js')
 
 
-var storeContract= function(contractdetails)
+var storeContract= function(contractdetails,networkContract)
     {
-    Contract.create({
+    networkContract.create({
             contractid : contractdetails._address,
             date : contractdetails._time,
             race_duration:contractdetails._raceDuration,
@@ -45,12 +47,12 @@ web3.eth.getBlockNumber(function(error, result){
     var myEvent = contractInstance.RaceDeployed({},{fromBlock:result-17280 , toBlock: 'latest'});
 
     myEvent.watch(function(error, contractresult){
-       Contract.findOneAndUpdate({'contractid':contractresult.args._address}, {}, {}, function(error, result) {
+       KovanContract.findOneAndUpdate({'contractid':contractresult.args._address}, {}, {}, function(error, result) {
                 if (!error) {
                     // If the document doesn't exist
                     if (!result) {
                         // Create it
-                        storeContract(contractresult.args)
+                        storeContract(contractresult.args,KovanContract)
                     }
                 }
             });
@@ -65,7 +67,7 @@ pastcontracts();
 
 
 router.get('/', function (req, res) {
-    Contract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).sort('-date').exec(function (err, contracts) {
+    KovanContract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).sort('-date').exec(function (err, contracts) {
         var returnResult=[]
         if(err)
             return res.status(500).send("There was a problem finding the contracts.");
@@ -96,7 +98,7 @@ router.get('/', function (req, res) {
 
 });
 router.get('/getNextRace', function (req, res) {
-    Contract.find({race_duration:req.headers.duration}).sort('-date').limit(1).exec(function(err,contract){
+    KovanContract.find({race_duration:req.headers.duration}).sort('-date').limit(1).exec(function(err,contract){
         race1_interval=43200;
         race2_interval=86400;
         if(err)
