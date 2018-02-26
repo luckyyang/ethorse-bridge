@@ -1,4 +1,6 @@
 {
     "address": "0x2c3692b7056b5b9dfd4256d0afc8ed9d54382bfd",
-    "providerLink":"https://kovan.infura.io/"
+    "mainnetAddress": "0x2c3692b7056b5b9dfd4256d0afc8ed9d54382bfd",
+    "providerLink":"https://kovan.infura.io/",
+    "mainnetProviderLink":"https://mainnet.infura.io/"
 }

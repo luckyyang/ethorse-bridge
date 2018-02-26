@@ -7,6 +7,6 @@ var cors = require('cors')
 
 app.use(cors())
 var ContractController = require(__dirname+'/Contract/ContractController');
-app.use('/contract', ContractController);
+app.use('/bridge', ContractController);
 
 module.exports = app;

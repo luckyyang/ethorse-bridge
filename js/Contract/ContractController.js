@@ -26,25 +26,41 @@ var storeContract= function(contractdetails,networkContract)
     });
     }
 
-const engine = ZeroClientProvider({
+//Kovan Connection
+const kovanEngine = ZeroClientProvider({
   getAccounts: function(){},
   rpcUrl: providerLink,
 })
 
-
-var web3 = new Web3(engine);
-
+var kovanWeb3 = new Web3(kovanEngine);
 
 var contractAddress=ethorsejson.address;
 
-var MyContract = web3.eth.contract(controllerjson);
-var contractInstance = MyContract.at(contractAddress);
-
+var kovanContract = kovanWeb3.eth.contract(controllerjson);
+var kovanContractInstance = kovanContract.at(contractAddress);
 var options={address:contractAddress};
 
+//Mainnet Connection
+// const mainEngine = ZeroClientProvider({
+//   getAccounts: function(){},
+//   rpcUrl: ethorsejson.mainnetProviderLink,
+// })
+//
+//
+// var mainWeb3 = new Web3(mainEngine);
+//
+// var mainContractAddress=ethorsejson.mainnetAddress;
+//
+// var mainContract = mainWeb3.eth.contract(controllerjson);
+// var mainContractInstance = mainContract.at(mainContractAddress);
+// var mainnetOptions={address:mainContractAddress};
+
+
+
 function pastcontracts(){
-web3.eth.getBlockNumber(function(error, result){
-    var myEvent = contractInstance.RaceDeployed({},{fromBlock:result-17280 , toBlock: 'latest'});
+//Kovan Listener
+kovanWeb3.eth.getBlockNumber(function(error, result){
+    var myEvent = kovanContractInstance.RaceDeployed({},{fromBlock:result-17280 , toBlock: 'latest'});
 
     myEvent.watch(function(error, contractresult){
        KovanContract.findOneAndUpdate({'contractid':contractresult.args._address}, {}, {}, function(error, result) {
@@ -57,9 +73,24 @@ web3.eth.getBlockNumber(function(error, result){
                 }
             });
     });
-
-
  })
+
+//Main Listener
+ // mainWeb3.eth.getBlockNumber(function(error, result){
+ //     var myEvent = mainContractInstance.RaceDeployed({},{fromBlock:result-17280 , toBlock: 'latest'});
+ //
+ //     myEvent.watch(function(error, contractresult){
+ //        MainContract.findOneAndUpdate({'contractid':contractresult.args._address}, {}, {}, function(error, result) {
+ //                 if (!error) {
+ //                     // If the document doesn't exist
+ //                     if (!result) {
+ //                         // Create it
+ //                         storeContract(contractresult.args,MainContract)
+ //                     }
+ //                 }
+ //             });
+ //     });
+ //  })
 }
 
 pastcontracts();
