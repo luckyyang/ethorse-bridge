@@ -110,7 +110,7 @@ router.get('/', function (req, res) {
                 tempjson['active']='Active';
                 }
             else if(parseInt(tempjson.date)<=req.headers.currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=req.headers.currenttime){
-                tempjson['active']='Betting Open';
+                tempjson['active']='Open for bets';
             }
             else
                 {
