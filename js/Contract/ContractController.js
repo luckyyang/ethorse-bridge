@@ -130,15 +130,20 @@ router.get('/', function (req, res) {
 });
 router.get('/getNextRace', function (req, res) {
     KovanContract.find({race_duration:req.headers.duration}).sort('-date').limit(1).exec(function(err,contract){
-        race1_interval=43200;
-        race2_interval=86400;
+        race1_interval=21600;
+        race2_interval=43200;
         if(err)
             return res.status(500).send("There was a problem finding the latest contract");
         if(contract.length==0 || ((parseInt(contract[0].date)+race1_interval)-parseInt(req.headers.currenttime))<0){
             return res.status(204).send([]);}
         else{
-        nextrace=[{'raceDate':(parseInt(contract[0].date)+race1_interval),'time_remaining':((parseInt(contract[0].date)+race1_interval)-parseInt(req.headers.currenttime))*1000,'status':'Upcoming'}]
-        res.status(200).send(nextrace);
+          if (req.headers.duration == 3600) {
+            race_interval = race1_interval;
+          } else {
+            race_interval = race2_interval;
+          }
+          nextrace=[{'raceDate':(parseInt(contract[0].date)+race_interval),'time_remaining':((parseInt(contract[0].date)+race_interval)-parseInt(req.headers.currenttime))*1000,'status':'Upcoming'}]
+          res.status(200).send(nextrace);
         }
 
     })
