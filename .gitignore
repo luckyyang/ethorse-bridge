@@ -63,3 +63,4 @@ typings/
 # OS specific files
 .DS_Store
 
+json/config.json
