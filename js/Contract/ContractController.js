@@ -187,36 +187,58 @@ router.get('/', function (req, res) {
 
 });
 
+router.get('/getActiveRaces', function(req, res) {
+    var currenttime = Date.now()/1000;
+    var result=[];
+    KovanContract.find().sort('-date').limit(10).exec(function (err, contracts) {
+        if(err)
+        return res.status(500).send("There was a problem finding the contracts.");
+        contracts.forEach(contractRecord=>{
+            var tempjson=JSON.parse(JSON.stringify(contractRecord));
+
+            // TODO: refactor the if clause logic.
+            if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=currenttime && (parseInt(tempjson.end_time))>=currenttime){
+                tempjson['active']='Active';
+                if(tempjson.contractid!==undefined)
+                result.push(tempjson);
+            } else if(parseInt(tempjson.date)<=currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
+                tempjson['active']='Open for bets';
+                if(tempjson.contractid!==undefined)
+                result.push(tempjson);
+            }
+        });
+        return res.status(200).send(result);
+    });
+});
+
 router.get('/getParticipatedRaces', function(req, res) {
     var currenttime = Date.now()/1000;
     var slacktime = 2592000;
-    console.log(parseInt(currenttime));
     Participated.find({participated_userid: req.headers.userid , 'participated_date':{'$gte': currenttime-slacktime,'$lte': currenttime}})
     .sort('-participated_date')
     .exec(function (err,contractlist){
         console.log(contractlist);
         contractlist = contractlist.map(a => a.participated_race);
         KovanContract.find({'contractid':contractlist}).sort('-date').exec(function (err, contracts) {
-            var returnResult=[]
+            var returnResult=[];
             if(err)
             return res.status(500).send("There was a problem finding the contracts.");
             else if(contracts.length>0){
                 contracts.forEach(contractRecord=>{
                     var tempjson=JSON.parse(JSON.stringify(contractRecord))
-                    if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=req.headers.currenttime && (parseInt(tempjson.end_time))>=req.headers.currenttime)
+                    if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=currenttime && (parseInt(tempjson.end_time))>=currenttime)
                     {
                         tempjson['active']='Active';
                     }
-                    else if(parseInt(tempjson.date)<=req.headers.currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=req.headers.currenttime){
+                    else if(parseInt(tempjson.date)<=currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
                         tempjson['active']='Open for bets';
                     }
                     else
                     {
                         tempjson['active']='Closed';
+                        if(tempjson.contractid!==undefined)
+                        returnResult.push(tempjson);
                     }
-                    if(tempjson.contractid!==undefined)
-                    returnResult.push(tempjson);
-
                 })
                 res.status(200).send(returnResult);
             }
@@ -237,25 +259,24 @@ router.get('/getNonParticipatedRaces', function(req, res) {
         contractlist = contractlist.map(a => a.participated_race);
         KovanContract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).where('contractid').ne(contractlist).sort('-date').exec(function (err, contracts) {
             console.log(contracts.length);
-            var returnResult=[]
+            var returnResult=[];
             if(err) return res.status(500).send("There was a problem finding the contracts.");
             else if(contracts.length>0){
                 contracts.forEach(contractRecord=>{
                     var tempjson=JSON.parse(JSON.stringify(contractRecord))
-                    if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=req.headers.currenttime && (parseInt(tempjson.end_time))>=req.headers.currenttime)
+                    if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=currenttime && (parseInt(tempjson.end_time))>=currenttime)
                     {
-                        tempjson['active']='Active';
+                        // tempjson['active']='Active';
                     }
-                    else if(parseInt(tempjson.date)<=req.headers.currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=req.headers.currenttime){
-                        tempjson['active']='Open for bets';
+                    else if(parseInt(tempjson.date)<=currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
+                        // tempjson['active']='Open for bets';
                     }
                     else
                     {
                         tempjson['active']='Closed';
+                        if(tempjson.contractid!==undefined)
+                        returnResult.push(tempjson);
                     }
-                    if(tempjson.contractid!==undefined)
-                    returnResult.push(tempjson);
-
                 })
                 res.status(200).send(returnResult);
             }
