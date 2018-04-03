@@ -7,42 +7,45 @@ router.use(bodyParser.json());
 // var Contract = require(__dirname+'/Contract');
 var KovanContract = require(__dirname+'/KovanContract');
 var MainContract = require(__dirname+'/MainContract');
+var Users = require(__dirname+'/Users');
+var Participated = require(__dirname+'/Participated');
 var KovanCounter = require(__dirname+'/../Counter/KovanCounter');
 var MainCounter = require(__dirname+'/../Counter/MainCounter');
 
 var Web3 = require('web3');
-var controllerjson=require(__dirname+'/../../json/BettingController.json');
-var ethorsejson=require(__dirname+'/../../json/ETHorse.json');
-var providerLink=ethorsejson.providerLink;
+var controllerjson = require(__dirname+'/../../json/BettingController.json');
+var betting_abi = require(__dirname+'/../../json/Betting.json');
+var ethorsejson = require(__dirname+'/../../json/ETHorse.json');
+var providerLink = ethorsejson.providerLink;
 const ProviderEngine = require('../../index.js')
 const ZeroClientProvider = require('../../zero.js')
 
-
-var storeContract= function(contractdetails,networkContract)
-    {
-      KovanCounter.findByIdAndUpdate({_id: 'entityId'}, {$inc: { seq: 1} }, {new: true, upsert: true}).then(function(count) {
-        networkContract.create({
-                contractid : contractdetails._address,
-                date : contractdetails._time,
-                race_duration:contractdetails._raceDuration,
-                betting_duration:contractdetails._bettingDuration,
-                end_time:parseInt(contractdetails._time)+parseInt(contractdetails._raceDuration)+parseInt(contractdetails._bettingDuration),
-                race_number:count.seq
-        });
-        })
-    }
 //Kovan Connection
 const kovanEngine = ZeroClientProvider({
-  getAccounts: function(){},
-  rpcUrl: providerLink,
+    getAccounts: function(){},
+    rpcUrl: providerLink,
 })
 
 var kovanWeb3 = new Web3(kovanEngine);
 
-var contractAddress=ethorsejson.address;
+var contractAddress = ethorsejson.address;
 var kovanContract = kovanWeb3.eth.contract(controllerjson);
 var kovanContractInstance = kovanContract.at(contractAddress);
-var options={address:contractAddress};
+var raceContractAbi = kovanWeb3.eth.contract(betting_abi);
+var options = {address:contractAddress};
+
+var storeContract= function(contractdetails,networkContract) {
+    KovanCounter.findByIdAndUpdate({_id: 'entityId'}, {$inc: { seq: 1} }, {new: true, upsert: true}).then(function(count) {
+        networkContract.create({
+            contractid : contractdetails._address,
+            date : contractdetails._time,
+            race_duration:contractdetails._raceDuration,
+            betting_duration:contractdetails._bettingDuration,
+            end_time:parseInt(contractdetails._time)+parseInt(contractdetails._raceDuration)+parseInt(contractdetails._bettingDuration),
+            race_number:count.seq
+        });
+    })
+}
 
 //Mainnet Connection
 // const mainEngine = ZeroClientProvider({
@@ -61,12 +64,56 @@ var options={address:contractAddress};
 
 
 
+function fetchBetLogs(contractAddress){
+    kovanWeb3.eth.getBlockNumber(function(error, blocknumber){
+        var raceContractInstance = raceContractAbi.at(contractAddress);
+        raceContractInstance.Deposit({},{fromBlock:blocknumber-17280 , toBlock: 'latest'}).get(function(error,result){
+            var betsArray = new Array();
+            var bulk_user = Users.collection.initializeUnorderedBulkOp({useLegacyOps: true});
+            var bulk_participated = Participated.collection.initializeUnorderedBulkOp({useLegacyOps: true});
+            var userinfo;
+
+            if(!error) {
+                result.forEach(function (bet){
+                    userinfo = {
+                        userid: bet.args._from,
+                        race: bet.address,
+                        horse: kovanWeb3.toAscii(bet.args._horse).replace(/\u0000/g, ''),
+                        value: kovanWeb3.fromWei(bet.args._value.toNumber(), "ether"),
+                        date: bet.args._date.toNumber()
+                    }
+                    participatedinfo = {
+                        participated_userid: bet.args._from,
+                        participated_race: bet.address,
+                        participated_date: bet.args._date.toNumber()
+                    }
+                    bulk_user.insert(userinfo);
+                    bulk_participated.insert(participatedinfo);
+                    // betsArray.push(temp_bets);
+                });
+                bulk_user.execute(function(err,result) {
+                   if (err) {
+                     // console.error(err);
+                   }
+               });
+               bulk_participated.execute(function(err,result) {
+                  if (err) {
+                    // console.error(err);
+                  }
+              });
+           }
+       });
+   });
+}
+
 function pastcontracts(){
-//Kovan Listener
-kovanWeb3.eth.getBlockNumber(function(error, result){
-    var myEvent = kovanContractInstance.RaceDeployed({},{fromBlock:result-17280 , toBlock: 'latest'});
-    myEvent.watch(function(error, contractresult){
-       KovanContract.findOneAndUpdate({'contractid':contractresult.args._address}, {}, {}, function(error, result) {
+    //Kovan Listener
+    kovanWeb3.eth.getBlockNumber(function(error, result){
+        var controllerRaceDeployed = kovanContractInstance.RaceDeployed({},{fromBlock:result-17280 , toBlock: 'latest'});
+        controllerRaceDeployed.watch(function(error, contractresult){
+            // console.log(contractresult);
+            // console.log(contractresult.args._address);
+            KovanContract.findOneAndUpdate({'contractid':contractresult.args._address}, {}, {}, function(error, result) {
                 if (!error) {
                     // If the document doesn't exist
                     if (!result) {
@@ -75,25 +122,33 @@ kovanWeb3.eth.getBlockNumber(function(error, result){
                     }
                 }
             });
-    });
- })
+        });
+        var raceBettingClose = kovanContractInstance.RemoteBettingCloseInfo({},{fromBlock:result-17280 , toBlock: 'latest'});
+        raceBettingClose.watch(function (error, result) {
+            if(!error) {
+                // console.log(result.args._race);
+                fetchBetLogs(result.args._race);
+            }
+        })
 
-//Main Listener
- // mainWeb3.eth.getBlockNumber(function(error, result){
- //     var myEvent = mainContractInstance.RaceDeployed({},{fromBlock:result-17280 , toBlock: 'latest'});
- //
- //     myEvent.watch(function(error, contractresult){
- //        MainContract.findOneAndUpdate({'contractid':contractresult.args._address}, {}, {}, function(error, result) {
- //                 if (!error) {
- //                     // If the document doesn't exist
- //                     if (!result) {
- //                         // Create it
- //                         storeContract(contractresult.args,MainContract)
- //                     }
- //                 }
- //             });
- //     });
- //  })
+    })
+
+    //Main Listener
+    // mainWeb3.eth.getBlockNumber(function(error, result){
+    //     var myEvent = mainContractInstance.RaceDeployed({},{fromBlock:result-17280 , toBlock: 'latest'});
+    //
+    //     myEvent.watch(function(error, contractresult){
+    //        MainContract.findOneAndUpdate({'contractid':contractresult.args._address}, {}, {}, function(error, result) {
+    //                 if (!error) {
+    //                     // If the document doesn't exist
+    //                     if (!result) {
+    //                         // Create it
+    //                         storeContract(contractresult.args,MainContract)
+    //                     }
+    //                 }
+    //             });
+    //     });
+    //  })
 }
 
 pastcontracts();
@@ -104,26 +159,26 @@ router.get('/', function (req, res) {
     KovanContract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).sort('-date').exec(function (err, contracts) {
         var returnResult=[]
         if(err)
-            return res.status(500).send("There was a problem finding the contracts.");
+        return res.status(500).send("There was a problem finding the contracts.");
         else if(contracts.length>0){
-        contracts.forEach(contractRecord=>{
-            var tempjson=JSON.parse(JSON.stringify(contractRecord))
-            if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=req.headers.currenttime && (parseInt(tempjson.end_time))>=req.headers.currenttime)
+            contracts.forEach(contractRecord=>{
+                var tempjson=JSON.parse(JSON.stringify(contractRecord))
+                if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=req.headers.currenttime && (parseInt(tempjson.end_time))>=req.headers.currenttime)
                 {
-                tempjson['active']='Active';
+                    tempjson['active']='Active';
                 }
-            else if(parseInt(tempjson.date)<=req.headers.currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=req.headers.currenttime){
-                tempjson['active']='Open for bets';
-            }
-            else
+                else if(parseInt(tempjson.date)<=req.headers.currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=req.headers.currenttime){
+                    tempjson['active']='Open for bets';
+                }
+                else
                 {
-                tempjson['active']='Closed';
+                    tempjson['active']='Closed';
                 }
-            if(tempjson.contractid!==undefined)
+                if(tempjson.contractid!==undefined)
                 returnResult.push(tempjson);
 
-        })
-        res.status(200).send(returnResult);
+            })
+            res.status(200).send(returnResult);
         }
         else{
             return res.status(204).send([]);
@@ -131,26 +186,105 @@ router.get('/', function (req, res) {
     });
 
 });
+
+router.get('/getParticipatedRaces', function(req, res) {
+    var currenttime = Date.now()/1000;
+    var slacktime = 2592000;
+    console.log(parseInt(currenttime));
+    Participated.find({participated_userid: req.headers.userid , 'participated_date':{'$gte': currenttime-slacktime,'$lte': currenttime}})
+    .sort('-participated_date')
+    .exec(function (err,contractlist){
+        console.log(contractlist);
+        contractlist = contractlist.map(a => a.participated_race);
+        KovanContract.find({'contractid':contractlist}).sort('-date').exec(function (err, contracts) {
+            var returnResult=[]
+            if(err)
+            return res.status(500).send("There was a problem finding the contracts.");
+            else if(contracts.length>0){
+                contracts.forEach(contractRecord=>{
+                    var tempjson=JSON.parse(JSON.stringify(contractRecord))
+                    if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=req.headers.currenttime && (parseInt(tempjson.end_time))>=req.headers.currenttime)
+                    {
+                        tempjson['active']='Active';
+                    }
+                    else if(parseInt(tempjson.date)<=req.headers.currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=req.headers.currenttime){
+                        tempjson['active']='Open for bets';
+                    }
+                    else
+                    {
+                        tempjson['active']='Closed';
+                    }
+                    if(tempjson.contractid!==undefined)
+                    returnResult.push(tempjson);
+
+                })
+                res.status(200).send(returnResult);
+            }
+            else{
+                return res.status(204).send([]);
+            }
+        })
+        // res.status(200).send(contractlist);
+    });
+});
+
+router.get('/getNonParticipatedRaces', function(req, res) {
+    var currenttime = Date.now()/1000;
+    var slacktime = 2592000;
+    Participated.find({participated_userid: req.headers.userid , 'participated_date':{'$gte': currenttime-slacktime,'$lte': currenttime}})
+    .sort('-participated_date')
+    .exec(function (err,contractlist){
+        contractlist = contractlist.map(a => a.participated_race);
+        KovanContract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).where('contractid').ne(contractlist).sort('-date').exec(function (err, contracts) {
+            console.log(contracts.length);
+            var returnResult=[]
+            if(err) return res.status(500).send("There was a problem finding the contracts.");
+            else if(contracts.length>0){
+                contracts.forEach(contractRecord=>{
+                    var tempjson=JSON.parse(JSON.stringify(contractRecord))
+                    if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=req.headers.currenttime && (parseInt(tempjson.end_time))>=req.headers.currenttime)
+                    {
+                        tempjson['active']='Active';
+                    }
+                    else if(parseInt(tempjson.date)<=req.headers.currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=req.headers.currenttime){
+                        tempjson['active']='Open for bets';
+                    }
+                    else
+                    {
+                        tempjson['active']='Closed';
+                    }
+                    if(tempjson.contractid!==undefined)
+                    returnResult.push(tempjson);
+
+                })
+                res.status(200).send(returnResult);
+            }
+            else{
+                return res.status(204).send([]);
+            }
+        })
+        // res.status(200).send(contractlist);
+    });
+});
+
 router.get('/getNextRace', function (req, res) {
     KovanContract.find({race_duration:req.headers.duration}).sort('-date').limit(1).exec(function(err,contract){
-        race1_interval=21600;
-        race2_interval=43200;
+        race1_interval = 21600;
+        race2_interval = 43200;
         if (req.headers.duration == 3600) {
             race_interval = race1_interval;
         } else {
             race_interval = race2_interval;
         }
-        if(err)
-            return res.status(500).send("There was a problem finding the latest contract");
-        if(contract.length==0 || ((parseInt(contract[0].date)+race_interval)-parseInt(req.headers.currenttime))<0){
-            return res.status(204).send([]);}
+        if(err) return res.status(500).send("There was a problem finding the latest contract");
+        if(contract.length == 0 || ((parseInt(contract[0].date)+race_interval)-parseInt(req.headers.currenttime))<0){
+            return res.status(204).send([]);
+        }
         else{
-            nextrace=[{'raceDate':(parseInt(contract[0].date)+race_interval),'time_remaining':((parseInt(contract[0].date)+race_interval)-parseInt(req.headers.currenttime))*1000,'status':'Upcoming'}]
+            nextrace = [{'raceDate':(parseInt(contract[0].date)+race_interval),'time_remaining':((parseInt(contract[0].date)+race_interval)-parseInt(req.headers.currenttime))*1000,'status':'Upcoming'}]
             res.status(200).send(nextrace);
         }
-
     })
 });
-
 
 module.exports = router;

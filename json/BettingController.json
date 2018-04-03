@@ -3,24 +3,6 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_bettingDuration",
-				"type": "uint256"
-			},
-			{
-				"name": "_raceDuration",
-				"type": "uint256"
-			}
-		],
-		"name": "spawnRace",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
 				"name": "myid",
 				"type": "bytes32"
 			},
@@ -59,6 +41,65 @@
 	},
 	{
 		"constant": false,
+		"inputs": [],
+		"name": "addFunds",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_race",
+				"type": "address"
+			}
+		],
+		"name": "enableRefund",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "extractFund",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_delay",
+				"type": "uint256"
+			},
+			{
+				"name": "_bettingDuration",
+				"type": "uint256"
+			},
+			{
+				"name": "_raceDuration",
+				"type": "uint256"
+			}
+		],
+		"name": "initiateRaceSpawning",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
 		"inputs": [
 			{
 				"name": "_status",
@@ -73,42 +114,65 @@
 	},
 	{
 		"constant": false,
+		"inputs": [],
+		"name": "remoteBettingClose",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
 		"inputs": [
 			{
-				"name": "delay",
+				"indexed": false,
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "newOraclizeQuery",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_race",
+				"type": "address"
+			}
+		],
+		"name": "RemoteBettingCloseInfo",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_value",
 				"type": "uint256"
 			}
 		],
-		"name": "update",
-		"outputs": [
+		"name": "AddFund",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
 			{
-				"name": "",
-				"type": "bytes32"
+				"indexed": true,
+				"name": "_race",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_value",
+				"type": "uint256"
 			}
 		],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "addFunds",
-		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "constructor"
-	},
-	{
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "fallback"
+		"name": "HouseFeeDeposit",
+		"type": "event"
 	},
 	{
 		"anonymous": false,
@@ -143,44 +207,73 @@
 		"type": "event"
 	},
 	{
-		"anonymous": false,
+		"constant": false,
 		"inputs": [
 			{
-				"indexed": false,
-				"name": "_race",
-				"type": "address"
+				"name": "_bettingDuration",
+				"type": "uint256"
 			},
 			{
-				"indexed": false,
-				"name": "_value",
+				"name": "_raceDuration",
 				"type": "uint256"
 			}
 		],
-		"name": "HouseFeeDeposit",
-		"type": "event"
+		"name": "spawnRaceManual",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
+		"inputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "constructor"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "paused",
+		"outputs": [
 			{
-				"indexed": false,
-				"name": "description",
-				"type": "string"
+				"name": "",
+				"type": "bool"
 			}
 		],
-		"name": "newOraclizeQuery",
-		"type": "event"
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
 	},
 	{
-		"anonymous": false,
+		"constant": true,
 		"inputs": [
 			{
-				"indexed": false,
-				"name": "_value",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "raceIndex",
+		"outputs": [
+			{
+				"name": "spawnTime",
+				"type": "uint256"
+			},
+			{
+				"name": "bettingDuration",
+				"type": "uint256"
+			},
+			{
+				"name": "raceDuration",
 				"type": "uint256"
 			}
 		],
-		"name": "AddFund",
-		"type": "event"
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
 	}
 ]
