@@ -1,4 +1,5 @@
-var mongoose = require('mongoose');
+// var mongoose = require('mongoose');
+var mongoose = require('../db');
 var Schema = mongoose.Schema;
 
 var ParticipatedSchema = new Schema({
