@@ -257,8 +257,9 @@ router.get('/getNonParticipatedRaces', function(req, res) {
     .sort('-participated_date')
     .exec(function (err,contractlist){
         contractlist = contractlist.map(a => a.participated_race);
-        KovanContract.find({'date':{'$gte':currenttime-slacktime,'$lte':currenttime}}).where('contractid').ne(contractlist).sort('-date').exec(function (err, contracts) {
-            console.log(contracts.length);
+        console.log(contractlist);
+        KovanContract.find({'date':{'$gte':currenttime-slacktime,'$lte':currenttime},'contractid':{'$nin':contractlist}}).sort('-date').exec(function (err, contracts) {
+            console.log(contracts);
             var returnResult=[];
             if(err) return res.status(500).send("There was a problem finding the contracts.");
             else if(contracts.length>0){
