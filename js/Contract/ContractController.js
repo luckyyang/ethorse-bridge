@@ -165,7 +165,7 @@ router.get('/', function (req, res) {
                 var tempjson=JSON.parse(JSON.stringify(contractRecord))
                 if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=req.headers.currenttime && (parseInt(tempjson.end_time))>=req.headers.currenttime)
                 {
-                    tempjson['active']='Active';
+                    tempjson['active']='Race in progress';
                 }
                 else if(parseInt(tempjson.date)<=req.headers.currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=req.headers.currenttime){
                     tempjson['active']='Open for bets';
@@ -198,7 +198,7 @@ router.get('/getActiveRaces', function(req, res) {
 
             // TODO: refactor the if clause logic.
             if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=currenttime && (parseInt(tempjson.end_time))>=currenttime){
-                tempjson['active']='Active';
+                tempjson['active']='Race in progress';
                 if(tempjson.contractid!==undefined)
                 result.push(tempjson);
             } else if(parseInt(tempjson.date)<=currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
@@ -228,7 +228,7 @@ router.get('/getParticipatedRaces', function(req, res) {
                     var tempjson=JSON.parse(JSON.stringify(contractRecord))
                     if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=currenttime && (parseInt(tempjson.end_time))>=currenttime)
                     {
-                        tempjson['active']='Active';
+                        tempjson['active']='Race in progress';
                     }
                     else if(parseInt(tempjson.date)<=currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
                         tempjson['active']='Open for bets';
@@ -267,7 +267,7 @@ router.get('/getNonParticipatedRaces', function(req, res) {
                     var tempjson=JSON.parse(JSON.stringify(contractRecord))
                     if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=currenttime && (parseInt(tempjson.end_time))>=currenttime)
                     {
-                        // tempjson['active']='Active';
+                        // tempjson['active']='Race in progress';
                     }
                     else if(parseInt(tempjson.date)<=currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
                         // tempjson['active']='Open for bets';
