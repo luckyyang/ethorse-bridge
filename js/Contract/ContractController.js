@@ -156,12 +156,10 @@ function pastcontracts(){
 pastcontracts();
 // setInterval(pastcontracts,1800000);
 
-// router.use((req, res, next) => {
-//   // res.locals.ip = req.connection.remoteAddress; // Russian IP address.
-//   // res.locals.ip = "162.219.178.82"; // Russian IP address.
-//   res.locals.ip = "88.150.137.130"; // Russian IP address.
-//   next()
-// });
+router.use((req, res, next) => {
+  res.locals.ip = req.get['x-forwarded-for'];
+  next()
+});
 
 router.use(ipCountry.setup({
   mmdb: MMDBPath,
@@ -325,12 +323,6 @@ router.get('/getNextRace', function (req, res) {
 
 // Now, you can use exposed details.
 router.get('/detect', (req, res) => {
-    console.log("Real ip: ",req.get['x-real-ip']);
-    console.log("forwarded ip: ",req.get['x-forwarded-for']);
-    res.locals.ip = req.get['x-forwarded-for'];
-    console.log(res.locals.country); // RU (detected using IP from `res.locals.ip`)
-    console.log(res.locals.ip); // RU (detected using IP from `res.locals.ip`)
-
     res.send({"country":res.locals.country});
 })
 
