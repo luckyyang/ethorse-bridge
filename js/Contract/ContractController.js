@@ -325,8 +325,9 @@ router.get('/getNextRace', function (req, res) {
 
 // Now, you can use exposed details.
 router.get('/detect', (req, res) => {
-    console.log(req.connection.remoteAddress);
-    res.locals.ip = req.connection.remoteAddress;
+    console.log("Real ip: ",req.get['x-real-ip']);
+    console.log("forwarded ip: ",req.get['x-forwarded-for']);
+    res.locals.ip = req.get['x-forwarded-for'];
     console.log(res.locals.country); // RU (detected using IP from `res.locals.ip`)
     console.log(res.locals.ip); // RU (detected using IP from `res.locals.ip`)
 
