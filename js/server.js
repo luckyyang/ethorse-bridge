@@ -1,6 +1,7 @@
 // server.js
 var app = require('./app');
-var port = process.env.PORT || 3000;
+const cfg = require(__dirname+'/../json/ETHorse.json');
+var port = process.env.PORT || cfg.port;
 var host='0.0.0.0';
 
 var server = app.listen( port,host, function() {

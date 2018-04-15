@@ -2,5 +2,6 @@
     "address": "0x5Ab53Bbe9955B7b49287e7bed7335D23B92820Aa",
     "mainnetAddress": "0xa1e6b54b616fa65490ffa227b6cb10F00ac9717C",
     "providerLink":"https://mainnet.infura.io/",
-    "mainnetProviderLink":"https://mainnet.infura.io/"
+    "mainnetProviderLink":"https://mainnet.infura.io/",
+    "port": 3000
 }
