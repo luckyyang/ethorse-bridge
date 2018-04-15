@@ -112,8 +112,6 @@ function pastcontracts(){
     kovanWeb3.eth.getBlockNumber(function(error, result){
         var controllerRaceDeployed = kovanContractInstance.RaceDeployed({},{fromBlock:result-17280 , toBlock: 'latest'});
         controllerRaceDeployed.watch(function(error, contractresult){
-            // console.log(contractresult);
-            // console.log(contractresult.args._address);
             KovanContract.findOneAndUpdate({'contractid':contractresult.args._address}, {}, {}, function(error, result) {
                 if (!error) {
                     // If the document doesn't exist
@@ -228,7 +226,6 @@ router.get('/getParticipatedRaces', function(req, res) {
     Participated.find({participated_userid: req.headers.userid , 'participated_date':{'$gte': currenttime-slacktime,'$lte': currenttime}})
     .sort('-participated_date')
     .exec(function (err,contractlist){
-        console.log(contractlist);
         contractlist = contractlist.map(a => a.participated_race);
         KovanContract.find({'contractid':contractlist}).sort('-date').exec(function (err, contracts) {
             var returnResult=[];
@@ -268,9 +265,7 @@ router.get('/getNonParticipatedRaces', function(req, res) {
     .sort('-participated_date')
     .exec(function (err,contractlist){
         contractlist = contractlist.map(a => a.participated_race);
-        console.log(contractlist);
         KovanContract.find({'date':{'$gte':currenttime-slacktime,'$lte':currenttime},'contractid':{'$nin':contractlist}}).sort('-date').exec(function (err, contracts) {
-            console.log(contracts);
             var returnResult=[];
             if(err) return res.status(500).send("There was a problem finding the contracts.");
             else if(contracts.length>0){
