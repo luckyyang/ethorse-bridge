@@ -156,8 +156,9 @@ pastcontracts();
 // setInterval(pastcontracts,1800000);
 
 router.use((req, res, next) => {
-  res.locals.ip = req.headers['x-forwarded-for'];
-  next()
+    console.log("ip: ",req.headers['x-forwarded-for']);
+    res.locals.ip = req.headers['x-forwarded-for'];
+    next()
 });
 
 router.use(ipCountry.setup({
