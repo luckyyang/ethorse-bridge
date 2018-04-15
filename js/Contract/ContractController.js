@@ -11,6 +11,7 @@ var Users = require(__dirname+'/Users');
 var Participated = require(__dirname+'/Participated');
 var KovanCounter = require(__dirname+'/../Counter/KovanCounter');
 var MainCounter = require(__dirname+'/../Counter/MainCounter');
+const ipCountry = require('ip-country')
 
 var Web3 = require('web3');
 var controllerjson = require(__dirname+'/../../json/BettingController.json');
@@ -19,6 +20,7 @@ var ethorsejson = require(__dirname+'/../../json/ETHorse.json');
 var providerLink = ethorsejson.providerLink;
 const ProviderEngine = require('../../index.js')
 const ZeroClientProvider = require('../../zero.js')
+const MMDBPath = __dirname+"/../../db/GeoLite2/GeoLite2-Country.mmdb";
 
 //Kovan Connection
 const kovanEngine = ZeroClientProvider({
@@ -154,6 +156,17 @@ function pastcontracts(){
 pastcontracts();
 // setInterval(pastcontracts,1800000);
 
+// router.use((req, res, next) => {
+//   // res.locals.ip = req.connection.remoteAddress; // Russian IP address.
+//   // res.locals.ip = "162.219.178.82"; // Russian IP address.
+//   res.locals.ip = "88.150.137.130"; // Russian IP address.
+//   next()
+// });
+
+router.use(ipCountry.setup({
+  mmdb: MMDBPath,
+  fallbackCountry: ''
+}));
 
 router.get('/', function (req, res) {
     KovanContract.find({'date':{'$gte':req.headers.from,'$lte':req.headers.to}}).sort('-date').exec(function (err, contracts) {
@@ -308,5 +321,16 @@ router.get('/getNextRace', function (req, res) {
         }
     })
 });
+
+
+// Now, you can use exposed details.
+router.get('/detect', (req, res) => {
+    console.log(req.connection.remoteAddress);
+    res.locals.ip = req.connection.remoteAddress;
+    console.log(res.locals.country); // RU (detected using IP from `res.locals.ip`)
+    console.log(res.locals.ip); // RU (detected using IP from `res.locals.ip`)
+
+    res.send({"country":res.locals.country});
+})
 
 module.exports = router;

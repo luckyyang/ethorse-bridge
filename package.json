@@ -21,6 +21,7 @@
     "ethereumjs-vm": "^2.0.2",
     "express": "^4.16.2",
     "fetch-ponyfill": "^4.0.0",
+    "ip-country": "^1.0.2",
     "json-rpc-error": "^2.0.0",
     "json-stable-stringify": "^1.0.1",
     "mongoose": "^5.0.1",
