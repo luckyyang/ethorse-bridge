@@ -3,15 +3,15 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "myid",
-				"type": "bytes32"
+				"name": "_race",
+				"type": "address"
 			},
 			{
-				"name": "result",
-				"type": "string"
+				"name": "_newOwner",
+				"type": "address"
 			}
 		],
-		"name": "__callback",
+		"name": "changeRaceOwnership",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -25,27 +25,14 @@
 				"type": "bytes32"
 			},
 			{
-				"name": "result",
+				"name": "",
 				"type": "string"
-			},
-			{
-				"name": "proof",
-				"type": "bytes"
 			}
 		],
 		"name": "__callback",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "addFunds",
-		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -66,14 +53,77 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_amount",
-				"type": "uint256"
+				"name": "myid",
+				"type": "bytes32"
+			},
+			{
+				"name": "result",
+				"type": "string"
+			},
+			{
+				"name": "proof",
+				"type": "bytes"
 			}
 		],
-		"name": "extractFund",
+		"name": "__callback",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_status",
+				"type": "bool"
+			}
+		],
+		"name": "raceSpawnSwitch",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "raceIndex",
+		"outputs": [
+			{
+				"name": "spawnTime",
+				"type": "uint256"
+			},
+			{
+				"name": "bettingDuration",
+				"type": "uint256"
+			},
+			{
+				"name": "raceDuration",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "paused",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -102,14 +152,23 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_status",
-				"type": "bool"
+				"name": "_race",
+				"type": "address"
 			}
 		],
-		"name": "raceSpawnSwitch",
+		"name": "manualRecovery",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "addFunds",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -122,57 +181,47 @@
 		"type": "function"
 	},
 	{
-		"anonymous": false,
+		"constant": false,
 		"inputs": [
 			{
-				"indexed": false,
-				"name": "description",
-				"type": "string"
-			}
-		],
-		"name": "newOraclizeQuery",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "_race",
-				"type": "address"
-			}
-		],
-		"name": "RemoteBettingCloseInfo",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "_value",
+				"name": "_bettingDuration",
 				"type": "uint256"
-			}
-		],
-		"name": "AddFund",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "_race",
-				"type": "address"
 			},
 			{
-				"indexed": false,
-				"name": "_value",
+				"name": "_raceDuration",
 				"type": "uint256"
 			}
 		],
-		"name": "HouseFeeDeposit",
-		"type": "event"
+		"name": "spawnRaceManual",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "extractFund",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "constructor"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
 	},
 	{
 		"anonymous": false,
@@ -207,73 +256,56 @@
 		"type": "event"
 	},
 	{
-		"constant": false,
+		"anonymous": false,
 		"inputs": [
 			{
-				"name": "_bettingDuration",
-				"type": "uint256"
+				"indexed": true,
+				"name": "_race",
+				"type": "address"
 			},
 			{
-				"name": "_raceDuration",
+				"indexed": false,
+				"name": "_value",
 				"type": "uint256"
 			}
 		],
-		"name": "spawnRaceManual",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
+		"name": "HouseFeeDeposit",
+		"type": "event"
 	},
 	{
-		"inputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "constructor"
-	},
-	{
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "fallback"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "paused",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
+		"anonymous": false,
 		"inputs": [
 			{
-				"name": "",
+				"indexed": false,
+				"name": "description",
+				"type": "string"
+			}
+		],
+		"name": "newOraclizeQuery",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "AddFund",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "_race",
 				"type": "address"
 			}
 		],
-		"name": "raceIndex",
-		"outputs": [
-			{
-				"name": "spawnTime",
-				"type": "uint256"
-			},
-			{
-				"name": "bettingDuration",
-				"type": "uint256"
-			},
-			{
-				"name": "raceDuration",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
+		"name": "RemoteBettingCloseInfo",
+		"type": "event"
 	}
 ]

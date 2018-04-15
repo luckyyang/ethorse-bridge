@@ -6,7 +6,6 @@ router.use(bodyParser.json());
 
 // var Contract = require(__dirname+'/Contract');
 var KovanContract = require(__dirname+'/KovanContract');
-var MainContract = require(__dirname+'/MainContract');
 var Users = require(__dirname+'/Users');
 var Participated = require(__dirname+'/Participated');
 var KovanCounter = require(__dirname+'/../Counter/KovanCounter');
@@ -18,8 +17,8 @@ var controllerjson = require(__dirname+'/../../json/BettingController.json');
 var betting_abi = require(__dirname+'/../../json/Betting.json');
 var ethorsejson = require(__dirname+'/../../json/ETHorse.json');
 var providerLink = ethorsejson.providerLink;
-const ProviderEngine = require('../../index.js')
-const ZeroClientProvider = require('../../zero.js')
+const ProviderEngine = require('../../index.js');
+const ZeroClientProvider = require('../../zero.js');
 const MMDBPath = __dirname+"/../../db/GeoLite2/GeoLite2-Country.mmdb";
 
 //Kovan Connection

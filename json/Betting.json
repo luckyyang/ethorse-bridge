@@ -42,28 +42,6 @@
 		"type": "function"
 	},
 	{
-		"constant": true,
-		"inputs": [],
-		"name": "getVoterIndex",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			},
-			{
-				"name": "",
-				"type": "bytes32"
-			},
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"constant": false,
 		"inputs": [
 			{
@@ -99,6 +77,20 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "_newOwner",
+				"type": "address"
+			}
+		],
+		"name": "changeOwnership",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "myid",
 				"type": "bytes32"
 			},
@@ -124,15 +116,15 @@
 		"outputs": [
 			{
 				"name": "BTC_delta",
-				"type": "int256"
+				"type": "int32"
 			},
 			{
 				"name": "ETH_delta",
-				"type": "int256"
+				"type": "int32"
 			},
 			{
 				"name": "LTC_delta",
-				"type": "int256"
+				"type": "int32"
 			},
 			{
 				"name": "BTC",
@@ -180,99 +172,14 @@
 	},
 	{
 		"constant": true,
-		"inputs": [],
-		"name": "chronus",
-		"outputs": [
-			{
-				"name": "betting_open",
-				"type": "bool"
-			},
-			{
-				"name": "race_start",
-				"type": "bool"
-			},
-			{
-				"name": "race_end",
-				"type": "bool"
-			},
-			{
-				"name": "voided_bet",
-				"type": "bool"
-			},
-			{
-				"name": "starting_time",
-				"type": "uint256"
-			},
-			{
-				"name": "betting_duration",
-				"type": "uint256"
-			},
-			{
-				"name": "race_duration",
-				"type": "uint256"
-			},
-			{
-				"name": "voided_timestamp",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "s",
-				"type": "string"
-			}
-		],
-		"name": "stringToUintNormalize",
-		"outputs": [
-			{
-				"name": "result",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "kickStarter",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
 		"inputs": [
 			{
 				"name": "index",
 				"type": "bytes32"
+			},
+			{
+				"name": "candidate",
+				"type": "address"
 			}
 		],
 		"name": "getCoinIndex",
@@ -296,6 +203,62 @@
 			{
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "chronus",
+		"outputs": [
+			{
+				"name": "betting_open",
+				"type": "bool"
+			},
+			{
+				"name": "race_start",
+				"type": "bool"
+			},
+			{
+				"name": "race_end",
+				"type": "bool"
+			},
+			{
+				"name": "voided_bet",
+				"type": "bool"
+			},
+			{
+				"name": "starting_time",
+				"type": "uint32"
+			},
+			{
+				"name": "betting_duration",
+				"type": "uint32"
+			},
+			{
+				"name": "race_duration",
+				"type": "uint32"
+			},
+			{
+				"name": "voided_timestamp",
+				"type": "uint32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
 			}
 		],
 		"payable": false,
