@@ -154,13 +154,19 @@ pastcontracts();
 // setInterval(pastcontracts,1800000);
 
 router.use((req, res, next) => {
-    res.locals.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    try {
+        res.locals.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    } catch (e) {
+        console.error(e);
+    } finally {
+        res.locals.ip = "";
+    }
     next()
 });
 
 router.use(ipCountry.setup({
   mmdb: MMDBPath,
-  fallbackCountry: ''
+  fallbackCountry: 'NONE'
 }));
 
 router.get('/', function (req, res) {
