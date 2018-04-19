@@ -159,7 +159,9 @@ router.use((req, res, next) => {
     } catch (e) {
         console.error(e);
     } finally {
-        res.locals.ip = "";
+        if (res.locals.country === undefined) {
+            res.locals.ip = "";
+        }
     }
     next()
 });
