@@ -26,6 +26,7 @@ function FilterSubprovider(opts) {
   self.asyncBlockHandlers = {}
   self.asyncPendingBlockHandlers = {}
   self._ready = new Stoplight()
+  self._ready.setMaxListeners(opts.maxFilters || 25)
   self._ready.go()
   self.pendingBlockTimeout = opts.pendingBlockTimeout || 4000
   self.checkForPendingBlocksActive = false
@@ -107,10 +108,10 @@ FilterSubprovider.prototype.newBlockFilter = function(cb) {
     }
 
     self.filterIndex++
-    var hexFilterIndex = intToHex(self.filterIndex)
-    self.filters[hexFilterIndex] = filter
-    self.filterDestroyHandlers[hexFilterIndex] = destroyHandler
+    self.filters[self.filterIndex] = filter
+    self.filterDestroyHandlers[self.filterIndex] = destroyHandler
 
+    var hexFilterIndex = intToHex(self.filterIndex)
     cb(null, hexFilterIndex)
   })
 }
@@ -132,10 +133,10 @@ FilterSubprovider.prototype.newLogFilter = function(opts, cb) {
     }
 
     self.filterIndex++
-    var hexFilterIndex = intToHex(self.filterIndex)
-    self.asyncBlockHandlers[hexFilterIndex] = blockHandler
-    self.filters[hexFilterIndex] = filter
+    self.asyncBlockHandlers[self.filterIndex] = blockHandler
+    self.filters[self.filterIndex] = filter
 
+    var hexFilterIndex = intToHex(self.filterIndex)
     cb(null, hexFilterIndex)
   })
 }
@@ -154,29 +155,31 @@ FilterSubprovider.prototype.newPendingTransactionFilter = function(cb) {
   }
 
   self.filterIndex++
-  var hexFilterIndex = intToHex(self.filterIndex)
-  self.asyncPendingBlockHandlers[hexFilterIndex] = blockHandler
-  self.filters[hexFilterIndex] = filter
+  self.asyncPendingBlockHandlers[self.filterIndex] = blockHandler
+  self.filters[self.filterIndex] = filter
 
+  var hexFilterIndex = intToHex(self.filterIndex)
   cb(null, hexFilterIndex)
 }
 
-FilterSubprovider.prototype.getFilterChanges = function(filterId, cb) {
+FilterSubprovider.prototype.getFilterChanges = function(hexFilterId, cb) {
   const self = this
 
+  var filterId = Number.parseInt(hexFilterId, 16)
   var filter = self.filters[filterId]
-  if (!filter) console.warn('FilterSubprovider - no filter with that id:', filterId)
+  if (!filter) console.warn('FilterSubprovider - no filter with that id:', hexFilterId)
   if (!filter) return cb(null, [])
   var results = filter.getChanges()
   filter.clearChanges()
   cb(null, results)
 }
 
-FilterSubprovider.prototype.getFilterLogs = function(filterId, cb) {
+FilterSubprovider.prototype.getFilterLogs = function(hexFilterId, cb) {
   const self = this
 
+  var filterId = Number.parseInt(hexFilterId, 16)
   var filter = self.filters[filterId]
-  if (!filter) console.warn('FilterSubprovider - no filter with that id:', filterId)
+  if (!filter) console.warn('FilterSubprovider - no filter with that id:', hexFilterId)
   if (!filter) return cb(null, [])
   if (filter.type === 'log') {
     self.emitPayload({
@@ -197,9 +200,10 @@ FilterSubprovider.prototype.getFilterLogs = function(filterId, cb) {
   }
 }
 
-FilterSubprovider.prototype.uninstallFilter = function(filterId, cb) {
+FilterSubprovider.prototype.uninstallFilter = function(hexFilterId, cb) {
   const self = this
 
+  var filterId = Number.parseInt(hexFilterId, 16)
   var filter = self.filters[filterId]
   if (!filter) {
     cb(null, false)
@@ -339,8 +343,8 @@ function LogFilter(opts) {
   const self = this
   EventEmitter.apply(self)
   self.type = 'log'
-  self.fromBlock = opts.fromBlock || 'latest'
-  self.toBlock = opts.toBlock || 'latest'
+  self.fromBlock = (opts.fromBlock !== undefined) ? opts.fromBlock : 'latest'
+  self.toBlock = (opts.toBlock !== undefined) ? opts.toBlock : 'latest'
   self.address = opts.address ? normalizeHex(opts.address) : opts.address
   self.topics = opts.topics || []
   self.updates = []

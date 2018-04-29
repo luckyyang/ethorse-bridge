@@ -1,7 +1,7 @@
 const doWhilst = require('async/doWhilst')
 const inherits = require('util').inherits
 const Stoplight = require('../util/stoplight.js')
-const createVm = require('ethereumjs-vm/lib/hooked').fromWeb3Provider
+const createVm = require('ethereumjs-vm/dist/hooked').fromWeb3Provider
 const Block = require('ethereumjs-block')
 const FakeTransaction = require('ethereumjs-tx/fake.js')
 const ethUtil = require('ethereumjs-util')
@@ -127,7 +127,7 @@ VmSubprovider.prototype.runVm = function(payload, cb){
   var txParams = payload.params[0]
   // console.log('params:', payload.params)
 
-  var tx = new FakeTransaction({
+  const normalizedTxParams = {
     to: txParams.to ? ethUtil.addHexPrefix(txParams.to) : undefined,
     from: txParams.from ? ethUtil.addHexPrefix(txParams.from) : undefined,
     value: txParams.value ? ethUtil.addHexPrefix(txParams.value) : undefined,
@@ -135,7 +135,9 @@ VmSubprovider.prototype.runVm = function(payload, cb){
     gasLimit: txParams.gas ? ethUtil.addHexPrefix(txParams.gas) : block.header.gasLimit,
     gasPrice: txParams.gasPrice ? ethUtil.addHexPrefix(txParams.gasPrice) : undefined,
     nonce: txParams.nonce ? ethUtil.addHexPrefix(txParams.nonce) : undefined,
-  })
+  }
+  var tx = new FakeTransaction(normalizedTxParams)
+  tx._from = normalizedTxParams.from || '0x0000000000000000000000000000000000000000'
 
   vm.runTx({
     tx: tx,

@@ -24,8 +24,12 @@ module.exports = HookedWalletSubprovider
 //   eth_accounts
 //   eth_sendTransaction
 //   eth_sign
+//   eth_signTypedData
 //   personal_sign
 //   personal_ecRecover
+//   parity_postTransaction
+//   parity_checkRequest
+//   parity_defaultAccount
 
 //
 // Tx Signature Flow
@@ -52,8 +56,7 @@ function HookedWalletSubprovider(opts){
   self.nonceLock = Semaphore(1)
 
   // data lookup
-  if (!opts.getAccounts) throw new Error('ProviderEngine - HookedWalletSubprovider - did not provide "getAccounts" fn in constructor options')
-  self.getAccounts = opts.getAccounts
+  if (opts.getAccounts) self.getAccounts = opts.getAccounts
   // high level override
   if (opts.processTransaction) self.processTransaction = opts.processTransaction
   if (opts.processMessage) self.processMessage = opts.processMessage
@@ -65,10 +68,10 @@ function HookedWalletSubprovider(opts){
   self.approvePersonalMessage = opts.approvePersonalMessage || self.autoApprove
   self.approveTypedMessage = opts.approveTypedMessage || self.autoApprove
   // actually perform the signature
-  if (opts.signTransaction) self.signTransaction = opts.signTransaction
-  if (opts.signMessage) self.signMessage = opts.signMessage
-  if (opts.signPersonalMessage) self.signPersonalMessage = opts.signPersonalMessage
-  if (opts.signTypedMessage) self.signTypedMessage = opts.signTypedMessage
+  if (opts.signTransaction) self.signTransaction = opts.signTransaction  || mustProvideInConstructor('signTransaction')
+  if (opts.signMessage) self.signMessage = opts.signMessage  || mustProvideInConstructor('signMessage')
+  if (opts.signPersonalMessage) self.signPersonalMessage = opts.signPersonalMessage  || mustProvideInConstructor('signPersonalMessage')
+  if (opts.signTypedMessage) self.signTypedMessage = opts.signTypedMessage  || mustProvideInConstructor('signTypedMessage')
   if (opts.recoverPersonalSignature) self.recoverPersonalSignature = opts.recoverPersonalSignature
   // publish to network
   if (opts.publishTransaction) self.publishTransaction = opts.publishTransaction
@@ -76,18 +79,27 @@ function HookedWalletSubprovider(opts){
 
 HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
   const self = this
+  self._parityRequests = {}
+  self._parityRequestCount = 0
+
+  // switch statement is not block scoped
+  // sp we cant repeat var declarations
+  let txParams, msgParams, extraParams
+  let message, address
 
   switch(payload.method) {
 
     case 'eth_coinbase':
+      // process normally
       self.getAccounts(function(err, accounts){
         if (err) return end(err)
-        var result = accounts[0] || null
+        let result = accounts[0] || null
         end(null, result)
       })
       return
 
     case 'eth_accounts':
+      // process normally
       self.getAccounts(function(err, accounts){
         if (err) return end(err)
         end(null, accounts)
@@ -95,7 +107,7 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
       return
 
     case 'eth_sendTransaction':
-      var txParams = payload.params[0]
+      txParams = payload.params[0]
       waterfall([
         (cb) => self.validateTransaction(txParams, cb),
         (cb) => self.processTransaction(txParams, cb),
@@ -103,7 +115,7 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
       return
 
     case 'eth_signTransaction':
-      var txParams = payload.params[0]
+      txParams = payload.params[0]
       waterfall([
         (cb) => self.validateTransaction(txParams, cb),
         (cb) => self.processSignTransaction(txParams, cb),
@@ -111,12 +123,13 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
       return
 
     case 'eth_sign':
-      var address = payload.params[0]
-      var message = payload.params[1]
+      // process normally
+      address = payload.params[0]
+      message = payload.params[1]
       // non-standard "extraParams" to be appended to our "msgParams" obj
       // good place for metadata
-      var extraParams = payload.params[2] || {}
-      var msgParams = extend(extraParams, {
+      extraParams = payload.params[2] || {}
+      msgParams = extend(extraParams, {
         from: address,
         data: message,
       })
@@ -127,10 +140,9 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
       return
 
     case 'personal_sign':
+      // process normally
       const first = payload.params[0]
       const second = payload.params[1]
-
-      var message, address
 
       // We initially incorrectly ordered these parameters.
       // To gracefully respect users who adopted this API early,
@@ -155,8 +167,8 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
 
       // non-standard "extraParams" to be appended to our "msgParams" obj
       // good place for metadata
-      var extraParams = payload.params[2] || {}
-      var msgParams = extend(extraParams, {
+      extraParams = payload.params[2] || {}
+      msgParams = extend(extraParams, {
         from: address,
         data: message,
       })
@@ -167,12 +179,12 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
       return
 
     case 'personal_ecRecover':
-      var message = payload.params[0]
-      var signature = payload.params[1]
+      message = payload.params[0]
+      let signature = payload.params[1]
       // non-standard "extraParams" to be appended to our "msgParams" obj
       // good place for metadata
-      var extraParams = payload.params[2] || {}
-      var msgParams = extend(extraParams, {
+      extraParams = payload.params[2] || {}
+      msgParams = extend(extraParams, {
         sig: signature,
         data: message,
       })
@@ -180,10 +192,11 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
       return
 
     case 'eth_signTypedData':
+      // process normally
       message = payload.params[0]
       address = payload.params[1]
-      var extraParams = payload.params[2] || {}
-      var msgParams = extend(extraParams, {
+      extraParams = payload.params[2] || {}
+      msgParams = extend(extraParams, {
         from: address,
         data: message,
       })
@@ -193,12 +206,45 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
       ], end)
       return
 
+    case 'parity_postTransaction':
+      txParams = payload.params[0]
+      self.parityPostTransaction(txParams, end)
+      return
+
+    case 'parity_postSign':
+      address = payload.params[0]
+      message = payload.params[1]
+      self.parityPostSign(address, message, end)
+      return
+
+    case 'parity_checkRequest':
+      const requestId = payload.params[0]
+      self.parityCheckRequest(requestId, end)
+      return
+
+    case 'parity_defaultAccount':
+      self.getAccounts(function(err, accounts){
+        if (err) return end(err)
+        const account = accounts[0] || null
+        end(null, account)
+      })
+      return
+
     default:
       next()
       return
 
   }
 }
+
+//
+// data lookup
+//
+
+HookedWalletSubprovider.prototype.getAccounts = function(cb) {
+  cb(null, [])
+}
+
 
 //
 // "process" high level flow
@@ -263,21 +309,70 @@ HookedWalletSubprovider.prototype.checkApproval = function(type, didApprove, cb)
 }
 
 //
-// signature and recovery
+// parity
 //
 
-HookedWalletSubprovider.prototype.signTransaction = function(tx, cb) {
-  cb(new Error('ProviderEngine - HookedWalletSubprovider - Must provide "signTransaction" fn in constructor options'))
+HookedWalletSubprovider.prototype.parityPostTransaction = function(txParams, cb) {
+  const self = this
+
+  // get next id
+  const count = self._parityRequestCount
+  const reqId = `0x${count.toString(16)}`
+  self._parityRequestCount++
+
+  self.emitPayload({
+    method: 'eth_sendTransaction',
+    params: [txParams],
+  }, function(error, res){
+    if (error) {
+      self._parityRequests[reqId] = { error }
+      return
+    }
+    const txHash = res.result
+    self._parityRequests[reqId] = txHash
+  })
+
+  cb(null, reqId)
 }
-HookedWalletSubprovider.prototype.signMessage = function(msgParams, cb) {
-  cb(new Error('ProviderEngine - HookedWalletSubprovider - Must provide "signMessage" fn in constructor options'))
+
+
+HookedWalletSubprovider.prototype.parityPostSign = function(address, message, cb) {
+  const self = this
+
+  // get next id
+  const count = self._parityRequestCount
+  const reqId = `0x${count.toString(16)}`
+  self._parityRequestCount++
+
+  self.emitPayload({
+    method: 'eth_sign',
+    params: [address, message],
+  }, function(error, res){
+    if (error) {
+      self._parityRequests[reqId] = { error }
+      return
+    }
+    const result = res.result
+    self._parityRequests[reqId] = result
+  })
+
+  cb(null, reqId)
 }
-HookedWalletSubprovider.prototype.signPersonalMessage = function(msgParams, cb) {
-  cb(new Error('ProviderEngine - HookedWalletSubprovider - Must provide "signPersonalMessage" fn in constructor options'))
+
+HookedWalletSubprovider.prototype.parityCheckRequest = function(reqId, cb) {
+  const self = this
+  const result = self._parityRequests[reqId] || null
+  // tx not handled yet
+  if (!result) return cb(null, null)
+  // tx was rejected (or other error)
+  if (result.error) return cb(result.error)
+  // tx sent
+  cb(null, result)
 }
-HookedWalletSubprovider.prototype.signTypedMessage = function(msgParams, cb) {
-  cb(new Error('ProviderEngine - HookedWalletSubprovider - Must provide "signTypedMessage" fn in constructor options'))
-}
+
+//
+// signature and recovery
+//
 
 HookedWalletSubprovider.prototype.recoverPersonalSignature = function(msgParams, cb) {
   let senderHex
@@ -342,7 +437,7 @@ HookedWalletSubprovider.prototype.validateSender = function(senderAddress, cb){
   if (!senderAddress) return cb(null, false)
   self.getAccounts(function(err, accounts){
     if (err) return cb(err)
-    var senderIsValid = (accounts.map(toLowerCase).indexOf(senderAddress.toLowerCase()) !== -1)
+    const senderIsValid = (accounts.map(toLowerCase).indexOf(senderAddress.toLowerCase()) !== -1)
     cb(null, senderIsValid)
   })
 }
@@ -397,10 +492,10 @@ HookedWalletSubprovider.prototype.publishTransaction = function(rawTx, cb) {
 
 HookedWalletSubprovider.prototype.fillInTxExtras = function(txParams, cb){
   const self = this
-  var address = txParams.from
+  const address = txParams.from
   // console.log('fillInTxExtras - address:', address)
 
-  var reqs = {}
+  const reqs = {}
 
   if (txParams.gasPrice === undefined) {
     // console.log("need to get gasprice")
@@ -421,12 +516,12 @@ HookedWalletSubprovider.prototype.fillInTxExtras = function(txParams, cb){
     if (err) return cb(err)
     // console.log('fillInTxExtras - result:', result)
 
-    var res = {}
+    const res = {}
     if (result.gasPrice) res.gasPrice = result.gasPrice.result
     if (result.nonce) res.nonce = result.nonce.result
     if (result.gas) res.gas = result.gas
 
-    cb(null, extend(res, txParams))
+    cb(null, extend(txParams, res))
   })
 }
 
@@ -471,4 +566,10 @@ function isValidHex(data) {
   const nonPrefixed = data.slice(2)
   const isValid = nonPrefixed.match(hexRegex)
   return isValid
+}
+
+function mustProvideInConstructor(methodName) {
+  return function(params, cb) {
+    cb(new Error('ProviderEngine - HookedWalletSubprovider - Must provide "' + methodName + '" fn in constructor options'))
+  }
 }
