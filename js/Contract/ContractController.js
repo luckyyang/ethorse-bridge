@@ -295,7 +295,7 @@ router.get('/getNonParticipatedRaces', function(req, res) {
 
 router.get('/getNextRace', function (req, res) {
     KovanContract.find({race_duration:req.headers.duration}).sort('-date').limit(1).exec(function(err,contract){
-        race1_interval = 14400;
+        race1_interval = 10800;
         race2_interval = 86400;
         if (req.headers.duration == 3600) {
             race_interval = race1_interval;
