@@ -197,7 +197,7 @@ router.get('/', function (req, res) {
 router.get('/getActiveRaces', function(req, res) {
     var currenttime = Date.now()/1000;
     var result=[];
-    KovanContract.find().sort('-date').limit(10).exec(function (err, contracts) {
+    KovanContract.find().sort('-date').limit(20).exec(function (err, contracts) {
         if(err)
         return res.status(500).send("There was a problem finding the contracts.");
         contracts.forEach(contractRecord=>{
