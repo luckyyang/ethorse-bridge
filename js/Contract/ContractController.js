@@ -313,6 +313,16 @@ router.get('/getNextRace', function (req, res) {
     })
 });
 
+router.get('/getHistoricRaces', function(req, res) {
+    var currenttime = Date.now()/1000;
+    var result=[];
+    KovanContract.find().sort('-date').limit(500).exec(function (err, contracts) {
+        if(err)
+        return res.status(500).send("There was a problem finding the contracts.");
+        return res.status(200).send(contracts);
+    });
+});
+
 
 // Now, you can use exposed details.
 router.get('/detect', (req, res) => {
