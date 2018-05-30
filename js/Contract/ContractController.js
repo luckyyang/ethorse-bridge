@@ -323,6 +323,44 @@ router.get('/getHistoricRaces', function(req, res) {
     });
 });
 
+router.get('/getHistoricParticipatedRaces', function(req, res) {
+    var currenttime = Date.now()/1000;
+    var slacktime = 7776000;
+    Participated.find({participated_userid: req.headers.userid , 'participated_date':{'$gte': currenttime-slacktime,'$lte': currenttime}})
+    .sort('-participated_date')
+    .exec(function (err,contractlist){
+        contractlist = contractlist.map(a => a.participated_race);
+        KovanContract.find({'contractid':contractlist}).sort('-date').exec(function (err, contracts) {
+            var returnResult=[];
+            if(err)
+            return res.status(500).send("There was a problem finding the contracts.");
+            else if(contracts.length>0){
+                contracts.forEach(contractRecord=>{
+                    var tempjson=JSON.parse(JSON.stringify(contractRecord))
+                    if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=currenttime && (parseInt(tempjson.end_time))>=currenttime)
+                    {
+                        tempjson['active']='Race in progress';
+                    }
+                    else if(parseInt(tempjson.date)<=currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
+                        tempjson['active']='Open for bets';
+                    }
+                    else
+                    {
+                        tempjson['active']='Closed';
+                        if(tempjson.contractid!==undefined)
+                        returnResult.push(tempjson);
+                    }
+                })
+                res.status(200).send(returnResult);
+            }
+            else{
+                return res.status(204).send([]);
+            }
+        })
+        // res.status(200).send(contractlist);
+    });
+});
+
 
 // Now, you can use exposed details.
 router.get('/detect', (req, res) => {
