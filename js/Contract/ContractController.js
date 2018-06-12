@@ -293,15 +293,29 @@ router.get('/getNonParticipatedRaces', function(req, res) {
     });
 });
 
+// router.get('/getNextRace', function (req, res) {
+//     KovanContract.find({race_duration:req.headers.duration}).sort('-date').limit(1).exec(function(err,contract){
+//         race1_interval = 10800;
+//         race2_interval = 86400;
+//         if (req.headers.duration == 3600) {
+//             race_interval = race1_interval;
+//         } else {
+//             race_interval = race2_interval;
+//         }
+//         if(err) return res.status(500).send("There was a problem finding the latest contract");
+//         if(contract.length == 0 || ((parseInt(contract[0].date)+race_interval)-parseInt(req.headers.currenttime))<0){
+//             return res.status(204).send([]);
+//         }
+//         else{
+//             nextrace = [{'raceDate':(parseInt(contract[0].date)+race_interval),'time_remaining':((parseInt(contract[0].date)+race_interval)-parseInt(req.headers.currenttime))*1000,'status':'Upcoming'}]
+//             res.status(200).send(nextrace);
+//         }
+//     })
+// });
+
 router.get('/getNextRace', function (req, res) {
     KovanContract.find({race_duration:req.headers.duration}).sort('-date').limit(1).exec(function(err,contract){
-        race1_interval = 10800;
-        race2_interval = 86400;
-        if (req.headers.duration == 3600) {
-            race_interval = race1_interval;
-        } else {
-            race_interval = race2_interval;
-        }
+        race_interval = Number(contract[0].betting_duration);
         if(err) return res.status(500).send("There was a problem finding the latest contract");
         if(contract.length == 0 || ((parseInt(contract[0].date)+race_interval)-parseInt(req.headers.currenttime))<0){
             return res.status(204).send([]);
@@ -315,11 +329,28 @@ router.get('/getNextRace', function (req, res) {
 
 router.get('/getHistoricRaces', function(req, res) {
     var currenttime = Date.now()/1000;
-    var result=[];
+    var returnResult=[];
     KovanContract.find().sort('-date').limit(500).exec(function (err, contracts) {
         if(err)
         return res.status(500).send("There was a problem finding the contracts.");
-        return res.status(200).send(contracts);
+        // return res.status(200).send(contracts);
+        contracts.forEach(contractRecord=>{
+            var tempjson=JSON.parse(JSON.stringify(contractRecord))
+            if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))<=currenttime && (parseInt(tempjson.end_time))>=currenttime)
+            {
+                tempjson['active']='Race in progress';
+            }
+            else if(parseInt(tempjson.date)<=currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
+                tempjson['active']='Open for bets';
+            }
+            else
+            {
+                tempjson['active']='Closed';
+                if(tempjson.contractid!==undefined)
+                returnResult.push(tempjson);
+            }
+        })
+        res.status(200).send(returnResult);
     });
 });
 
