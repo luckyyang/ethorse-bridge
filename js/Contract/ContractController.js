@@ -315,7 +315,7 @@ router.get('/getNonParticipatedRaces', function(req, res) {
 
 router.get('/getNextRace', function (req, res) {
     KovanContract.find({race_duration:req.headers.duration}).sort('-date').limit(1).exec(function(err,contract){
-        race_interval = Number(contract[0].betting_duration);
+        race_interval = Number(contract[0].betting_duration)+Number(req.headers.duration);
         if(err) return res.status(500).send("There was a problem finding the latest contract");
         if(contract.length == 0 || ((parseInt(contract[0].date)+race_interval)-parseInt(req.headers.currenttime))<0){
             return res.status(204).send([]);
