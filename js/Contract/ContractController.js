@@ -322,7 +322,7 @@ router.get('/getNextRace', function (req, res) {
         }
         else{
             nextrace = [{'raceDate':(parseInt(contract[0].date)+race_interval),'time_remaining':((parseInt(contract[0].date)+race_interval)-parseInt(req.headers.currenttime))*1000,'status':'Upcoming'}]
-            res.status(200).send(nextrace);
+            return res.status(200).send(nextrace);
         }
     })
 });
