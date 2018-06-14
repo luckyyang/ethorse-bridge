@@ -209,7 +209,7 @@ router.get('/getActiveRaces', function(req, res) {
                 if(tempjson.contractid!==undefined)
                 result.push(tempjson);
             // } else if(parseInt(tempjson.date)<=currenttime && (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
-            } else if (parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
+            } else if((parseInt(tempjson.date)+parseInt(tempjson.betting_duration))>=currenttime){
                 tempjson['active']='Open for bets';
                 if(tempjson.contractid!==undefined)
                 result.push(tempjson);
