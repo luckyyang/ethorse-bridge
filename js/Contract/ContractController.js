@@ -118,6 +118,14 @@ function pastcontracts(){
                     if (!result) {
                         // Create it
                         storeContract(contractresult.args,KovanContract)
+                        // seed the race
+                        console.log("seeding");
+                        var spawn = require("child_process").spawn;
+                        var process = spawn(ethorsejson.internalsPath+'env/bin/python',[ethorsejson.internalsPath+"seedRace.py",
+                            contractresult.args._address] );
+                        process.stdout.on('data', function(data) {
+                            console.log(data.toString());
+                        } )
                     }
                 }
             });
