@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
+var querystring = require('querystring');
+var http = require('http');
+
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(bodyParser.json());
 
@@ -116,13 +119,47 @@ function pastcontracts(){
                 if (!error) {
                     // If the document doesn't exist
                     if (!result) {
+                        /*
+                        // Triggering the fallback oracle
+                        var post_data = querystring.stringify({
+                              'betting_duration':contractresult.args._bettingDuration,
+                              'race_duration':contractrestult.args._raceDuration,
+                              'contract':contractresult.args._address
+                            });
+                        var post_options = {
+                               host: 'localhost',
+                               port: '5000',
+                               path: '/newrace',
+                               method: 'POST',
+                               headers: {
+                                   'Content-Type': 'application/x-www-form-urlencoded',
+                                   'Content-Length': Buffer.byteLength(post_data)
+                               }
+                            };
+                        var post_req = http.request(post_options, function(res) {
+                            res.setEncoding('utf8');
+                            res.on('data', function (chunk) {
+                                console.log('Response: ' + chunk);
+                            });
+                        });
+                        */
                         // Create it
                         storeContract(contractresult.args,KovanContract)
                         // seed the race
+                        var date = new Date();
+                        var current_hour = date.getHours();
                         console.log("seeding");
+                        var strategy;
+                        if (current_hour==1 || current_hour==19){
+                            strategy=1;
+                        } else {
+                            strategy=0;
+                        }
                         var spawn = require("child_process").spawn;
-                        var process = spawn(ethorsejson.internalsPath+'env/bin/python',[ethorsejson.internalsPath+"seedRace.py",
-                            contractresult.args._address] );
+                        var process = spawn(ethorsejson.internalsPath+'env/bin/python',
+                                            [ethorsejson.internalsPath+"seedRace.py",
+                                            contractresult.args._address,
+                                            strategy]);
                         process.stdout.on('data', function(data) {
                             console.log(data.toString());
                         } )
