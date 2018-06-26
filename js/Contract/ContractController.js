@@ -119,8 +119,7 @@ function pastcontracts(){
                 if (!error) {
                     // If the document doesn't exist
                     if (!result) {
-                        /*
-                        // Triggering the fallback oracle
+                        /*// Triggering the fallback oracle
                         var post_data = querystring.stringify({
                               'betting_duration':contractresult.args._bettingDuration,
                               'race_duration':contractrestult.args._raceDuration,
@@ -142,7 +141,8 @@ function pastcontracts(){
                                 console.log('Response: ' + chunk);
                             });
                         });
-                        */
+                        post_req.write(post_data);
+                        post_req.end();*/
                         // Create it
                         storeContract(contractresult.args,KovanContract)
                         // seed the race
