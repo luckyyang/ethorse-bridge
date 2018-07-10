@@ -119,10 +119,12 @@ function pastcontracts(){
                 if (!error) {
                     // If the document doesn't exist
                     if (!result) {
-                        /*// Triggering the fallback oracle
+                        // Triggering the ethorse oracle
+                        console.log(contractresult.args);
                         var post_data = querystring.stringify({
-                              'betting_duration':contractresult.args._bettingDuration,
-                              'race_duration':contractrestult.args._raceDuration,
+                              'deployed_time':contractresult.args._time.toNumber(),
+                              'betting_duration':contractresult.args._bettingDuration.toNumber(),
+                              'race_duration':contractresult.args._raceDuration.toNumber(),
                               'contract':contractresult.args._address
                             });
                         var post_options = {
@@ -142,7 +144,7 @@ function pastcontracts(){
                             });
                         });
                         post_req.write(post_data);
-                        post_req.end();*/
+                        post_req.end();
                         // Create it
                         storeContract(contractresult.args,KovanContract)
                         if(ethorsejson.internalsPath.length>0){
@@ -447,4 +449,32 @@ router.get('/detect', (req, res) => {
     res.send({"country":res.locals.country});
 })
 
+router.get('/test', (req,res)=>{
+    var post_data = querystring.stringify({
+          'deployed_time':1531160643,
+          'betting_duration':300,
+          'race_duration':300,
+          'contract':"0x15Af2c3232665f36Ec6BeeA2d7716bb41dfD6e0b"
+        });
+    var post_options = {
+           host: 'localhost',
+           port: '5000',
+           // path: '/newrace',
+           path: '/sendpriceforce',
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/x-www-form-urlencoded',
+               'Content-Length': Buffer.byteLength(post_data)
+           }
+        };
+    var post_req = http.request(post_options, function(res) {
+        res.setEncoding('utf8');
+        res.on('data', function (chunk) {
+            console.log('Response: ' + chunk);
+        });
+    });
+    post_req.write(post_data);
+    post_req.end();
+    res.send({"success":true});
+})
 module.exports = router;
