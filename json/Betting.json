@@ -45,15 +45,19 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "myid",
+				"name": "coin_pointer",
 				"type": "bytes32"
 			},
 			{
 				"name": "result",
-				"type": "string"
+				"type": "uint256"
+			},
+			{
+				"name": "isPrePrice",
+				"type": "bool"
 			}
 		],
-		"name": "__callback",
+		"name": "priceCallback",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -88,43 +92,21 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "myid",
-				"type": "bytes32"
-			},
-			{
-				"name": "result",
-				"type": "string"
-			},
-			{
-				"name": "proof",
-				"type": "bytes"
-			}
-		],
-		"name": "__callback",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"constant": true,
 		"inputs": [],
 		"name": "horses",
 		"outputs": [
 			{
 				"name": "BTC_delta",
-				"type": "int32"
+				"type": "int64"
 			},
 			{
 				"name": "ETH_delta",
-				"type": "int32"
+				"type": "int64"
 			},
 			{
 				"name": "LTC_delta",
-				"type": "int32"
+				"type": "int64"
 			},
 			{
 				"name": "BTC",
@@ -137,10 +119,6 @@
 			{
 				"name": "LTC",
 				"type": "bytes32"
-			},
-			{
-				"name": "customGasLimit",
-				"type": "uint256"
 			}
 		],
 		"payable": false,
@@ -252,6 +230,24 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_bettingDuration",
+				"type": "uint32"
+			},
+			{
+				"name": "_raceDuration",
+				"type": "uint32"
+			}
+		],
+		"name": "setupRace",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [],
 		"name": "owner",
@@ -280,29 +276,6 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "delay",
-				"type": "uint256"
-			},
-			{
-				"name": "locking_duration",
-				"type": "uint256"
-			}
-		],
-		"name": "setupRace",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
 		"constant": true,
 		"inputs": [],
 		"name": "checkReward",
@@ -310,6 +283,41 @@
 			{
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"name": "coinIndex",
+		"outputs": [
+			{
+				"name": "pre",
+				"type": "uint256"
+			},
+			{
+				"name": "post",
+				"type": "uint256"
+			},
+			{
+				"name": "total",
+				"type": "uint160"
+			},
+			{
+				"name": "count",
+				"type": "uint32"
+			},
+			{
+				"name": "price_check",
+				"type": "bool"
 			}
 		],
 		"payable": false,
@@ -355,30 +363,6 @@
 		"inputs": [
 			{
 				"indexed": false,
-				"name": "description",
-				"type": "string"
-			}
-		],
-		"name": "newOraclizeQuery",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "price",
-				"type": "uint256"
-			}
-		],
-		"name": "newPriceTicker",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
 				"name": "_from",
 				"type": "address"
 			},
@@ -416,6 +400,28 @@
 			}
 		],
 		"name": "Withdraw",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "coin_pointer",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"name": "result",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "isPrePrice",
+				"type": "bool"
+			}
+		],
+		"name": "PriceCallback",
 		"type": "event"
 	}
 ]
