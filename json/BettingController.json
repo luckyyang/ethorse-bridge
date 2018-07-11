@@ -21,11 +21,37 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "oracleQueryId",
+				"name": "raceAddress",
+				"type": "address"
+			},
+			{
+				"name": "coin_pointer",
 				"type": "bytes32"
 			},
 			{
-				"name": "",
+				"name": "result",
+				"type": "string"
+			},
+			{
+				"name": "isPrePrice",
+				"type": "bool"
+			}
+		],
+		"name": "ethorseOracle",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "myid",
+				"type": "bytes32"
+			},
+			{
+				"name": "result",
 				"type": "string"
 			}
 		],
@@ -75,77 +101,22 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_status",
-				"type": "bool"
-			}
-		],
-		"name": "raceSpawnSwitch",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
+				"name": "delay",
+				"type": "uint256"
+			},
 			{
-				"name": "",
+				"name": "locking_duration",
+				"type": "uint256"
+			},
+			{
+				"name": "raceAddress",
 				"type": "address"
 			}
 		],
-		"name": "raceIndex",
-		"outputs": [
-			{
-				"name": "spawnTime",
-				"type": "uint256"
-			},
-			{
-				"name": "bettingDuration",
-				"type": "uint256"
-			},
-			{
-				"name": "raceDuration",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "paused",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_delay",
-				"type": "uint256"
-			},
-			{
-				"name": "_bettingDuration",
-				"type": "uint256"
-			},
-			{
-				"name": "_raceDuration",
-				"type": "uint256"
-			}
-		],
-		"name": "initiateRaceSpawning",
+		"name": "setupRace",
 		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -173,8 +144,21 @@
 	},
 	{
 		"constant": false,
-		"inputs": [],
-		"name": "remoteBettingClose",
+		"inputs": [
+			{
+				"name": "_bettingDuration",
+				"type": "uint256"
+			},
+			{
+				"name": "_raceDuration",
+				"type": "uint256"
+			},
+			{
+				"name": "_isOraclizeUsed",
+				"type": "bool"
+			}
+		],
+		"name": "spawnRaceManual",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -184,18 +168,33 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_bettingDuration",
-				"type": "uint256"
-			},
-			{
-				"name": "_raceDuration",
+				"name": "_newGasPrice",
 				"type": "uint256"
 			}
 		],
-		"name": "spawnRaceManual",
+		"name": "changeOraclizeGasPrice",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "isOraclizeEnabled",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -217,11 +216,6 @@
 		"payable": true,
 		"stateMutability": "payable",
 		"type": "constructor"
-	},
-	{
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "fallback"
 	},
 	{
 		"anonymous": false,
@@ -259,41 +253,18 @@
 		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": true,
-				"name": "_race",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "_value",
-				"type": "uint256"
-			}
-		],
-		"name": "HouseFeeDeposit",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"name": "description",
-				"type": "string"
-			}
-		],
-		"name": "newOraclizeQuery",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
 				"indexed": false,
 				"name": "_value",
 				"type": "uint256"
 			}
 		],
 		"name": "AddFund",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [],
+		"name": "newOraclizeQuery",
 		"type": "event"
 	},
 	{
