@@ -151,21 +151,26 @@ function pastcontracts(){
                             // seed the race
                             var date = new Date();
                             var current_hour = date.getHours();
-                            console.log("seeding");
-                            var strategy;
-                            if (current_hour==1 || current_hour==19){
-                                strategy=1;
+                            if (current_hour == 23) {
+                                pass
                             } else {
-                                strategy=0;
+                                console.log("seeding");
+                                var strategy;
+                                if (current_hour==1 || current_hour==19){
+                                    // strategy=1;
+                                    strategy=0;
+                                } else {
+                                    strategy=0;
+                                }
+                                var spawn = require("child_process").spawn;
+                                var process = spawn(ethorsejson.internalsPath+'env/bin/python',
+                                                    [ethorsejson.internalsPath+"seedRace.py",
+                                                    contractresult.args._address,
+                                                    strategy]);
+                                process.stdout.on('data', function(data) {
+                                    console.log(data.toString());
+                                } )
                             }
-                            var spawn = require("child_process").spawn;
-                            var process = spawn(ethorsejson.internalsPath+'env/bin/python',
-                                                [ethorsejson.internalsPath+"seedRace.py",
-                                                contractresult.args._address,
-                                                strategy]);
-                            process.stdout.on('data', function(data) {
-                                console.log(data.toString());
-                            } )
                         }
                     }
                 }
