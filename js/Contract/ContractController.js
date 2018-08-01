@@ -152,7 +152,6 @@ function pastcontracts(){
                             var date = new Date();
                             var current_hour = date.getHours();
                             if (current_hour == 17) {
-                                pass
                             } else {
                                 console.log("seeding");
                                 var strategy;
@@ -451,7 +450,8 @@ router.get('/getHistoricParticipatedRaces', function(req, res) {
 
 // Now, you can use exposed details.
 router.get('/detect', (req, res) => {
-    res.send({"country":res.locals.country});
+    // res.send({"country":res.locals.country});
+    res.send({"country":'NONE'});
 })
 
 module.exports = router;
