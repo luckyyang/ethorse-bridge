@@ -151,7 +151,8 @@ function pastcontracts(){
                             // seed the race
                             var date = new Date();
                             var current_hour = date.getHours();
-                            if (current_hour == 17) {
+                            // if (current_hour == 17) {
+                            if (false) {
                             } else {
                                 console.log("seeding");
                                 var strategy;
